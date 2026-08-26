@@ -1,0 +1,73 @@
+# =========================================================================
+# Mondelēz Aging Dashboard - Git Ignore Configuration
+# =========================================================================
+
+# Python Bytecode & Cache
+__pycache__/
+backend/__pycache__/
+tests/__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+
+# Python Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# SQLite Database Storage & Local State
+*.db
+*.sqlite
+*.sqlite3
+backend/*.db
+backend/inventory.db
+
+# Large Excel Inventory Workbooks & Raw Datasets
+*.xlsb
+*.xlsx
+*.xls
+*.csv
+
+# Node / Frontend Dependencies & Production Builds
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+build/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vite Dev / Build Cache
+.vite/
+frontend/.vite/
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE & Code Editor Configs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+
