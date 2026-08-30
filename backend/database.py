@@ -153,12 +153,51 @@ def load_file_into_cache(file_id: int) -> bool:
         return True
     return False
 
+def delete_file_from_db(file_id: int) -> bool:
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM _files_history WHERE id = ?", (file_id,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return False
+
+    sheet_names = row["sheet_names"].split(",") if row["sheet_names"] else []
+    for name in sheet_names:
+        clean_sheet = re.sub(r'[^a-zA-Z0-9_]', '_', name.strip())
+        table_name = f"f_{file_id}_{clean_sheet}"
+        cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
+
+    cursor.execute("DELETE FROM _files_history WHERE id = ?", (file_id,))
+    conn.commit()
+    conn.close()
+
+    # Evict completely from in-memory RAM cache
+    if "all_workbooks" in CACHE and file_id in CACHE["all_workbooks"]:
+        del CACHE["all_workbooks"][file_id]
+
+    if CACHE.get("active_file_id") == file_id:
+        CACHE["active_file_id"] = None
+        CACHE["filename"] = None
+        CACHE["sheets"] = {}
+        CACHE["stock_sheet_name"] = None
+        CACHE["loaded"] = False
+        load_active_or_latest_from_sqlite()
+
+    return True
+
 def preload_all_workbooks_into_ram():
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT id, filename, stock_sheet_name, sheet_names FROM _files_history ORDER BY id ASC")
     rows = cursor.fetchall()
     conn.close()
+
+    valid_ids = {r["id"] for r in rows}
+    # Purge any deleted files from RAM cache
+    for cached_id in list(CACHE.get("all_workbooks", {}).keys()):
+        if cached_id not in valid_ids:
+            del CACHE["all_workbooks"][cached_id]
 
     for r in rows:
         f_id = r["id"]
@@ -186,7 +225,6 @@ def preload_all_workbooks_into_ram():
                 }
 
 def load_active_or_latest_from_sqlite() -> bool:
-    preload_all_workbooks_into_ram()
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM _files_history WHERE is_active = 1 LIMIT 1")

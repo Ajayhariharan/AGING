@@ -118,8 +118,9 @@ export default function ComparisonTab() {
   const catNames = Array.from(catNamesSet);
 
   // 2. Weekly Chart 2: Week on X-axis, Stacked by Bucket %
+  // Updated to only include buckets up to 70 TO 75
+  const allBucketsOrder = ['20 TO 30', '30 TO 40', '40 TO 50', '50 TO 60', '60 TO 70', '70 TO 75'];
   const weeklyBucketMap = {};
-  const allBucketsOrder = ['20 TO 30', '30 TO 40', '40 TO 50', '50 TO 60', '60 TO 70', '70 TO 75', '75 to 80', '80 to 85'];
   charts?.bucket_migration?.forEach(item => {
     if (!weeklyBucketMap[item.week]) weeklyBucketMap[item.week] = { week: item.week };
     weeklyBucketMap[item.week][item.bucket] = item.value_cr;
@@ -146,7 +147,7 @@ export default function ComparisonTab() {
   const branchChartData = Object.values(branchDataMap);
 
   const colors = ['#7C3AED', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#14B8A6'];
-  const bucketColors = ['#EF4444', '#F97316', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899', '#6366F1'];
+  const bucketColors = ['#EF4444', '#F97316', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'];
 
   return (
     <div className="tab-view-container">
@@ -298,39 +299,66 @@ export default function ComparisonTab() {
         </div>
       </div>
 
-      {/* Dynamic Comparison KPIs in Crores */}
-      <div className="kpi-grid-4">
-        <div className="metric-card">
-          <div className="metric-label">{mode === 'monthly' ? 'Latest Month Exposure' : 'Latest Week Exposure'}</div>
-          <div className="metric-value">₹{kpis.val_end?.toFixed(2)} Cr</div>
-          <div className="metric-delta">
-            {mode === 'monthly' ? 'All active depots' : 'Active period stock'}
-          </div>
-        </div>
+      {/* Dynamic Period Executive Overview Cards (High Risk Values & WoW / MoM Deltas) */}
+      <div 
+        style={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${Math.max(1, Math.min(kpis.executive_cards?.length || 4, 4))}, 1fr)`,
+          gap: 6,
+          flexShrink: 0,
+          minHeight: 54,
+          height: 54
+        }}
+      >
+        {kpis.executive_cards && kpis.executive_cards.length > 0 ? (
+          kpis.executive_cards.slice(0, 4).map((card, idx) => {
+            const isPositive = card.delta_cr > 0;
+            const isNegative = card.delta_cr < 0;
+            const deltaColor = card.is_baseline 
+              ? 'var(--metric-label-color)' 
+              : (isPositive ? '#DC2626' : (isNegative ? '#059669' : 'var(--metric-label-color)'));
 
-        <div className="metric-card">
-          <div className="metric-label">{mode === 'monthly' ? 'MoM Net Variance' : 'Net Trajectory Change'}</div>
-          <div className="metric-value" style={{ color: kpis.net_4wk_change >= 0 ? '#991B1B' : '#059669' }}>
-            {kpis.net_4wk_change >= 0 ? '+' : ''}₹{kpis.net_4wk_change?.toFixed(2)} Cr
-          </div>
-          <div className="metric-delta" style={{ color: kpis.pct_4wk_growth >= 0 ? '#991B1B' : '#059669' }}>
-            {kpis.pct_4wk_growth >= 0 ? '+' : ''}{kpis.pct_4wk_growth?.toFixed(1)}% {mode === 'monthly' ? 'MoM' : 'period variance'}
-          </div>
-        </div>
-
-        <div className="metric-card">
-          <div className="metric-label">Primary Driver</div>
-          <div className="metric-value">{kpis.driver_cat}</div>
-          <div className="metric-delta" style={{ color: '#991B1B' }}>
-            {kpis.driver_delta >= 0 ? '+' : ''}₹{kpis.driver_delta?.toFixed(2)} Cr impact
-          </div>
-        </div>
-
-        <div className="metric-card">
-          <div className="metric-label">Aging Index (&lt;50% life)</div>
-          <div className="metric-value">{kpis.aging_idx_pct?.toFixed(1)}%</div>
-          <div className="metric-delta">₹{kpis.safe_stock_cr?.toFixed(2)} Cr safe stock (&gt;70%)</div>
-        </div>
+            return (
+              <div key={card.period || idx} className="metric-card">
+                <div className="metric-label">{card.title}</div>
+                <div className="metric-value">₹{card.value_cr?.toFixed(2)} Cr</div>
+                <div className="metric-delta" style={{ color: deltaColor, fontWeight: 700 }}>
+                  {card.delta_str}
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          /* Fallback if no executive cards */
+          <>
+            <div className="metric-card">
+              <div className="metric-label">{mode === 'monthly' ? 'Latest Month Exposure' : 'Latest Week Exposure'}</div>
+              <div className="metric-value">₹{kpis.val_end?.toFixed(2)} Cr</div>
+              <div className="metric-delta">{mode === 'monthly' ? 'All active depots' : 'Active period stock'}</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-label">{mode === 'monthly' ? 'MoM Net Variance' : 'Net Trajectory Change'}</div>
+              <div className="metric-value" style={{ color: kpis.net_4wk_change >= 0 ? '#991B1B' : '#059669' }}>
+                {kpis.net_4wk_change >= 0 ? '+' : ''}₹{kpis.net_4wk_change?.toFixed(2)} Cr
+              </div>
+              <div className="metric-delta" style={{ color: kpis.pct_4wk_growth >= 0 ? '#991B1B' : '#059669' }}>
+                {kpis.pct_4wk_growth >= 0 ? '+' : ''}{kpis.pct_4wk_growth?.toFixed(1)}% {mode === 'monthly' ? 'MoM' : 'variance'}
+              </div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-label">Primary Driver</div>
+              <div className="metric-value">{kpis.driver_cat}</div>
+              <div className="metric-delta" style={{ color: '#991B1B' }}>
+                {kpis.driver_delta >= 0 ? '+' : ''}₹{kpis.driver_delta?.toFixed(2)} Cr impact
+              </div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-label">Aging Index (&lt;50% life)</div>
+              <div className="metric-value">{kpis.aging_idx_pct?.toFixed(1)}%</div>
+              <div className="metric-delta">₹{kpis.safe_stock_cr?.toFixed(2)} Cr safe stock (&gt;70%)</div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Top 3 Comparison Charts */}
@@ -471,7 +499,7 @@ export default function ComparisonTab() {
           </div>
         </div>
 
-        {/* Matrix 2: Shelf-Life Bucket Matrix */}
+        {/* Matrix 2: Shelf-Life Bucket Matrix - Updated to only show up to 70 TO 75 */}
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
           <h3 className="section-header">{mode === 'monthly' ? 'Shelf-Life Monthly Matrix (Cr)' : 'Shelf-Life Health Matrix (Cr)'}</h3>
           <div className="table-wrapper" style={{ background: 'var(--tbl-bg)' }}>

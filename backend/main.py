@@ -11,7 +11,7 @@ from pydantic import BaseModel
 
 from database import (
     CACHE, get_db_connection, load_file_into_cache, load_active_or_latest_from_sqlite,
-    save_uploaded_file_to_history, auto_init_default_workbook
+    save_uploaded_file_to_history, auto_init_default_workbook, delete_file_from_db
 )
 from parser import parse_xlsb_bytes
 from analytics import (
@@ -75,32 +75,9 @@ async def select_active_file(req: SelectFileRequest):
 
 @app.delete("/api/files/{file_id}")
 async def delete_file_from_history(file_id: int):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM _files_history WHERE id = ?", (file_id,))
-    row = cursor.fetchone()
-    if not row:
-        conn.close()
+    success = delete_file_from_db(file_id)
+    if not success:
         raise HTTPException(status_code=404, detail="File not found")
-
-    sheet_names = row["sheet_names"].split(",") if row["sheet_names"] else []
-    for name in sheet_names:
-        clean_sheet = re.sub(r'[^a-zA-Z0-9_]', '_', name.strip())
-        table_name = f"f_{file_id}_{clean_sheet}"
-        cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
-
-    cursor.execute("DELETE FROM _files_history WHERE id = ?", (file_id,))
-    conn.commit()
-    conn.close()
-
-    if CACHE.get("active_file_id") == file_id:
-        CACHE["active_file_id"] = None
-        CACHE["filename"] = None
-        CACHE["sheets"] = {}
-        CACHE["stock_sheet_name"] = None
-        CACHE["loaded"] = False
-        load_active_or_latest_from_sqlite()
-
     return {"status": "success", "message": f"Deleted file {file_id} from database"}
 
 # -------------------------------------------------------------
