@@ -114,7 +114,7 @@ def calculate_trend_data(dimension: str = "Category", metric: str = "At-Risk Val
             trajectory_data.append({
                 "week": str(r[t_week_col]),
                 "item": str(r[chosen_dim_col]),
-                "value": round(float(r[y_col]), 2)
+                "value": round(float(r[y_col]), 1) if 'cr' in metric.lower() or 'value' in metric.lower() else round(float(r[y_col]), 2)
             })
 
     # 2. Pareto Exposure Data
@@ -128,7 +128,7 @@ def calculate_trend_data(dimension: str = "Category", metric: str = "At-Risk Val
         for _, r in pareto_df.iterrows():
             pareto_data.append({
                 "item": str(r[chosen_dim_col]),
-                "value_cr": round(float(r[t_cr_col]), 2),
+                "value_cr": round(float(r[t_cr_col]), 1),
                 "cum_pct": round(float(r['Cum_Pct']), 1)
             })
 
@@ -148,7 +148,7 @@ def calculate_trend_data(dimension: str = "Category", metric: str = "At-Risk Val
                     comp_data.append({
                         "item": str(item),
                         "bucket": b,
-                        "value_cr": round(float(row[b]), 2)
+                        "value_cr": round(float(row[b]), 1)
                     })
 
     # 4. Regional Branch Breakdown for Top Items (01.North, 02.East, 03.West, 04.South)
@@ -167,7 +167,7 @@ def calculate_trend_data(dimension: str = "Category", metric: str = "At-Risk Val
                             branch_breakdown_data.append({
                                 "item": str(item),
                                 "branch": str(cat),
-                                "value_cr": round(float(row[cat]), 2)
+                                "value_cr": round(float(row[cat]), 1)
                             })
         else:
             br_df = filtered_tr[
@@ -181,7 +181,7 @@ def calculate_trend_data(dimension: str = "Category", metric: str = "At-Risk Val
                         branch_breakdown_data.append({
                             "item": str(item),
                             "branch": str(br),
-                            "value_cr": round(float(row[br]), 2)
+                            "value_cr": round(float(row[br]), 1)
                         })
 
     # 5. Leaderboard Table
@@ -210,8 +210,8 @@ def calculate_trend_data(dimension: str = "Category", metric: str = "At-Risk Val
             leaderboard.append({
                 "rank": f"#{idx+1}",
                 "item": str(r[chosen_dim_col]),
-                "total_exposure_cr": round(val, 2),
-                "high_risk_cr": round(hr_val, 2),
+                "total_exposure_cr": round(val, 1),
+                "high_risk_cr": round(hr_val, 1),
                 "stock_cases": int(stk_c),
                 "high_risk_pct": f"{hr_pct:.1f}%",
                 "share_pct": f"{share_tot:.1f}%",
@@ -226,13 +226,13 @@ def calculate_trend_data(dimension: str = "Category", metric: str = "At-Risk Val
             "branch_options": branch_vals
         },
         "kpis": {
-            "top_contributor_val": round(top_val, 2),
+            "top_contributor_val": round(float(top_val), 1),
             "top_contributor_name": str(top_contributor),
             "top_contributor_pct": round(top_pct, 1),
             "pareto_count": pareto_count,
             "pareto_pct": round(pareto_pct, 0),
             "high_risk_pct": round(high_risk_pct, 1),
-            "high_risk_val": round(high_risk_val, 2),
+            "high_risk_val": round(float(high_risk_val), 1),
             "freshness_ratio": round(freshness_ratio, 1)
         },
         "charts": {

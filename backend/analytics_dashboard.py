@@ -72,8 +72,8 @@ def calculate_dashboard_data(weeks: List[str] = [], branches: List[str] = [], ch
             rec = {}
             for col in pivot_df.columns:
                 val = row[col]
-                if isinstance(val, float):
-                    rec[str(col)] = round(val, 2)
+                if isinstance(val, (int, float)) and not pd.isna(val):
+                    rec[str(col)] = round(float(val), 1)
                 elif val is None or pd.isna(val):
                     rec[str(col)] = ""
                 else:
@@ -94,7 +94,7 @@ def calculate_dashboard_data(weeks: List[str] = [], branches: List[str] = [], ch
             cat_pivot['Row_Total'] = cat_pivot[TARGET_BUCKETS].sum(axis=1)
             grand_cat_total = cat_pivot['Row_Total'].sum()
             if grand_cat_total > 0:
-                cat_pivot['Share'] = ((cat_pivot['Row_Total'] / grand_cat_total) * 100).round(0).astype(int).astype(str) + '%'
+                cat_pivot['Share'] = ((cat_pivot['Row_Total'] / grand_cat_total) * 100).round(1).astype(str) + '%'
             else:
                 cat_pivot['Share'] = '0%'
             cat_pivot = cat_pivot.sort_values(by='Row_Total', ascending=False).drop(columns=['Row_Total'])
@@ -127,13 +127,13 @@ def calculate_dashboard_data(weeks: List[str] = [], branches: List[str] = [], ch
             all_brand_total = brand_pivot['Row_Total'].sum()
             brand_pivot = brand_pivot.sort_values(by='Row_Total', ascending=False).head(10)
             if all_brand_total > 0:
-                brand_pivot['Share'] = ((brand_pivot['Row_Total'] / all_brand_total) * 100).round(0).astype(int).astype(str) + '%'
+                brand_pivot['Share'] = ((brand_pivot['Row_Total'] / all_brand_total) * 100).round(1).astype(str) + '%'
             else:
                 brand_pivot['Share'] = '0%'
             total_row = brand_pivot[TARGET_BUCKETS].sum().to_frame().T
             total_row.index = ['Total']
             top10_sum = brand_pivot['Row_Total'].sum()
-            total_row['Share'] = f"{int(round((top10_sum / all_brand_total * 100)))}%" if all_brand_total > 0 else "100%"
+            total_row['Share'] = f"{round((top10_sum / all_brand_total * 100), 1)}%" if all_brand_total > 0 else "100%"
             brand_pivot = brand_pivot.drop(columns=['Row_Total'])
             final_brand_pivot = pd.concat([brand_pivot, total_row]).reset_index().rename(columns={'index': 'Brand', d_brand_col: 'Brand'})
             final_brand_pivot.insert(0, '#', [str(i) if i < len(final_brand_pivot) else '' for i in range(1, len(final_brand_pivot)+1)])
@@ -149,7 +149,7 @@ def calculate_dashboard_data(weeks: List[str] = [], branches: List[str] = [], ch
             branch_pivot['Row_Total'] = branch_pivot[TARGET_BUCKETS].sum(axis=1)
             grand_branch_total = branch_pivot['Row_Total'].sum()
             if grand_branch_total > 0:
-                branch_pivot['Share'] = ((branch_pivot['Row_Total'] / grand_branch_total) * 100).round(0).astype(int).astype(str) + '%'
+                branch_pivot['Share'] = ((branch_pivot['Row_Total'] / grand_branch_total) * 100).round(1).astype(str) + '%'
             else:
                 branch_pivot['Share'] = '0%'
             branch_pivot = branch_pivot.sort_values(by='Row_Total', ascending=False).drop(columns=['Row_Total'])
@@ -186,7 +186,7 @@ def calculate_dashboard_data(weeks: List[str] = [], branches: List[str] = [], ch
             for _, r in flat_hm.iterrows():
                 row_dict = {'LINK DES': str(r['LINK DES'])}
                 for dep in avail_depots:
-                    row_dict[dep] = round(float(r[dep]), 2)
+                    row_dict[dep] = round(float(r[dep]), 1)
                 rows_json.append(row_dict)
             heatmap_data = {
                 "columns": ['LINK DES'] + avail_depots,
@@ -202,8 +202,8 @@ def calculate_dashboard_data(weeks: List[str] = [], branches: List[str] = [], ch
             "channel_options": channel_vals
         },
         "risk_cards": {
-            "high_risk_cr": round(high_risk_val, 2),
-            "med_risk_cr": round(med_risk_val, 2)
+            "high_risk_cr": round(float(high_risk_val), 1),
+            "med_risk_cr": round(float(med_risk_val), 1)
         },
         "category_table": category_table,
         "branch_category_pivot": branch_cat_table,

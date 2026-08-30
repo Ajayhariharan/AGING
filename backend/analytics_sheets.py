@@ -87,7 +87,7 @@ def calculate_sheet_data(sheet_name: str, filters: Dict[str, List[str]], limit: 
         kpis = {
             "rows": len(filtered_df),
             "total_stock": int(num_stk.sum()),
-            "amount_crores": round(float(num_cr.sum()), 2),
+            "amount_crores": round(float(num_cr.sum()), 1),
             "skus": filtered_df[material_col].nunique() if material_col else 0
         }
 

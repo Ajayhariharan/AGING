@@ -153,7 +153,7 @@ export default function TrendAnalysisTab() {
           <div className="metric-label">Leading {dimension}</div>
           <div className="metric-value">{kpis.top_contributor_name || 'N/A'}</div>
           <div className="metric-delta">
-            ₹{kpis.top_contributor_val?.toFixed(2)} Cr ({kpis.top_contributor_pct?.toFixed(1)}% share)
+            ₹{Number(kpis.top_contributor_val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr ({kpis.top_contributor_pct?.toFixed(1)}% share)
           </div>
         </div>
 
@@ -176,7 +176,7 @@ export default function TrendAnalysisTab() {
         <div className="metric-card">
           <div className="metric-label">High Risk Exposure (20-50%)</div>
           <div className="metric-value" style={{ color: '#991B1B' }}>
-            ₹{kpis.high_risk_val?.toFixed(2)} Cr
+            ₹{Number(kpis.high_risk_val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr
           </div>
           <div className="metric-delta">{kpis.high_risk_pct?.toFixed(1)}% of total stock</div>
         </div>
@@ -194,7 +194,7 @@ export default function TrendAnalysisTab() {
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid-stroke)" />
                 <XAxis dataKey="week" tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
                 <YAxis tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
-                <Tooltip />
+                <Tooltip formatter={(val, name) => [metric.includes('Cases') ? Number(val).toLocaleString() : `₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr`, name]} />
                 {trajectoryItems.map((item, i) => (
                   <Line key={item} type="monotone" dataKey={item} stroke={colors[i % colors.length]} strokeWidth={2} dot={{ r: 2 }} />
                 ))}
@@ -213,7 +213,7 @@ export default function TrendAnalysisTab() {
                 <XAxis dataKey="item" tick={{ fill: 'var(--text-main)', fontSize: 8 }} interval={0} />
                 <YAxis yAxisId="left" tick={{ fill: 'var(--text-main)', fontSize: 8 }} />
                 <YAxis yAxisId="right" orientation="right" tick={{ fill: 'var(--text-main)', fontSize: 8 }} domain={[0, 100]} />
-                <Tooltip />
+                <Tooltip formatter={(val, name) => [name === 'value_cr' ? `₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr` : `${val}%`, name === 'value_cr' ? 'Value' : 'Cumulative %']} />
                 <Bar yAxisId="left" dataKey="value_cr" fill="#7C3AED" />
                 <Line yAxisId="right" type="monotone" dataKey="cum_pct" stroke="#EC4899" strokeWidth={2} dot={{ r: 2 }} />
               </ComposedChart>
@@ -230,7 +230,7 @@ export default function TrendAnalysisTab() {
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid-stroke)" />
                 <XAxis dataKey="item" tick={{ fill: 'var(--text-main)', fontSize: 8 }} interval={0} />
                 <YAxis tick={{ fill: 'var(--text-main)', fontSize: 8 }} />
-                <Tooltip />
+                <Tooltip formatter={(val, name) => [`₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr`, name]} />
                 {healthProfileBuckets.map((b, i) => (
                   <Bar key={b} dataKey={b} stackId="a" fill={healthColors[i % healthColors.length]} />
                 ))}
@@ -248,7 +248,7 @@ export default function TrendAnalysisTab() {
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid-stroke)" />
                 <XAxis dataKey="item" tick={{ fill: 'var(--text-main)', fontSize: 8 }} interval={0} />
                 <YAxis tick={{ fill: 'var(--text-main)', fontSize: 8 }} />
-                <Tooltip />
+                <Tooltip formatter={(val, name) => [`₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr`, name]} />
                 {activeBranches.map((br, i) => (
                   <Bar key={br} dataKey={br} fill={branchColors[i % branchColors.length]} />
                 ))}
@@ -280,8 +280,8 @@ export default function TrendAnalysisTab() {
                 <tr key={i}>
                   <td style={{ fontWeight: 700, textAlign: 'left' }}>{r.rank}</td>
                   <td style={{ fontWeight: 600, textAlign: 'left' }}>{r.item}</td>
-                  <td style={{ textAlign: 'right', fontWeight: 700 }}>₹{r.total_exposure_cr?.toFixed(2)} Cr</td>
-                  <td style={{ textAlign: 'right', color: '#991B1B' }}>₹{r.high_risk_cr?.toFixed(2)} Cr</td>
+                  <td style={{ textAlign: 'right', fontWeight: 700 }}>₹{Number(r.total_exposure_cr || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr</td>
+                  <td style={{ textAlign: 'right', color: '#991B1B' }}>₹{Number(r.high_risk_cr || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr</td>
                   <td style={{ textAlign: 'right' }}>{r.stock_cases?.toLocaleString()}</td>
                   <td style={{ textAlign: 'right' }}>{r.high_risk_pct}</td>
                   <td style={{ textAlign: 'right' }}>{r.share_pct}</td>

@@ -150,11 +150,11 @@ export default function AlertViewTab() {
       <div className="kpi-grid-4">
         <div className="metric-card">
           <div className="metric-label">High Risk Exposure (20-50%)</div>
-          <div className="metric-value" style={{ color: '#991B1B' }}>₹{kpis.high_risk_value?.toFixed(2)} Cr</div>
+          <div className="metric-value" style={{ color: '#991B1B' }}>₹{Number(kpis.high_risk_value || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr</div>
         </div>
         <div className="metric-card">
           <div className="metric-label">Medium Risk Exposure (50-75%)</div>
-          <div className="metric-value" style={{ color: '#D97706' }}>₹{kpis.medium_risk_value?.toFixed(2)} Cr</div>
+          <div className="metric-value" style={{ color: '#D97706' }}>₹{Number(kpis.medium_risk_value || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr</div>
         </div>
         <div className="metric-card">
           <div className="metric-label">High Risk SKUs</div>
@@ -191,7 +191,7 @@ export default function AlertViewTab() {
                   <td style={{ textAlign: 'center' }}>{a.shelf_life_left}</td>
                   <td style={{ textAlign: 'right' }}>{a.est_days ?? '-'}</td>
                   <td style={{ textAlign: 'right' }}>{a.stock_cases?.toLocaleString()}</td>
-                  <td style={{ textAlign: 'right', fontWeight: 700 }}>₹{a.value_cr?.toFixed(4)} Cr</td>
+                  <td style={{ textAlign: 'right', fontWeight: 700 }}>₹{Number(a.value_cr || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr</td>
                   <td style={{ textAlign: 'center' }}>
                     <span className={a.risk === 'High' ? 'badge-high' : 'badge-medium'}>
                       {a.risk}

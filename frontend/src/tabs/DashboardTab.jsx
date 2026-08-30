@@ -71,10 +71,24 @@ export default function DashboardTab() {
     };
   };
 
+  // Helper to format values as rounded to 1 decimal place with Indian locale commas
+  const formatVal = (val) => {
+    if (val === null || val === undefined || val === '') return '-';
+    if (typeof val === 'number') {
+      return Number(val.toFixed(1)).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    }
+    const num = parseFloat(val);
+    if (!isNaN(num) && typeof val === 'string' && /^-?\d+(\.\d+)?$/.test(val.trim())) {
+      return Number(num.toFixed(1)).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    }
+    return val;
+  };
+
   return (
     <div className="tab-view-container">
-      {/* Slicers Bar */}
+      {/* Top Slicers Bar */}
       <div className="filter-bar">
+        {/* Week Slicer */}
         <div className="filter-group">
           <label>Week:</label>
           <select 
@@ -89,6 +103,7 @@ export default function DashboardTab() {
           </select>
         </div>
 
+        {/* Branch Slicer */}
         <div className="filter-group">
           <label>Branch:</label>
           <select 
@@ -103,6 +118,7 @@ export default function DashboardTab() {
           </select>
         </div>
 
+        {/* Channel Slicer */}
         <div className="filter-group">
           <label>Channel:</label>
           <select 
@@ -125,7 +141,7 @@ export default function DashboardTab() {
             <h4>HIGH RISK</h4>
             <div className="risk-card-sub">Total amount in Crores (20%-50%)</div>
           </div>
-          <div className="risk-card-val">₹{risk_cards?.high_risk_cr?.toFixed(2)} Cr</div>
+          <div className="risk-card-val">₹{Number(risk_cards?.high_risk_cr || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr</div>
         </div>
 
         <div className="risk-card-med">
@@ -133,7 +149,7 @@ export default function DashboardTab() {
             <h4>MEDIUM RISK</h4>
             <div className="risk-card-sub">Total amount in Crores (50%-75%)</div>
           </div>
-          <div className="risk-card-val">₹{risk_cards?.med_risk_cr?.toFixed(2)} Cr</div>
+          <div className="risk-card-val">₹{Number(risk_cards?.med_risk_cr || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr</div>
         </div>
       </div>
 
@@ -161,7 +177,7 @@ export default function DashboardTab() {
                       <tr key={i} className={isTotal ? 'total-row' : ''}>
                         {category_table.columns.map(c => (
                           <td key={c} style={{ textAlign: c === 'Category' ? 'left' : 'right' }}>
-                            {typeof r[c] === 'number' ? r[c].toFixed(2) : r[c]}
+                            {formatVal(r[c])}
                           </td>
                         ))}
                       </tr>
@@ -192,7 +208,7 @@ export default function DashboardTab() {
                       <tr key={i} className={isTotal ? 'total-row' : ''}>
                         {branch_category_pivot.columns.map(c => (
                           <td key={c} style={{ textAlign: c === 'Branch' ? 'left' : 'right' }}>
-                            {typeof r[c] === 'number' ? r[c].toFixed(2) : r[c]}
+                            {formatVal(r[c])}
                           </td>
                         ))}
                       </tr>
@@ -226,7 +242,7 @@ export default function DashboardTab() {
                       <tr key={i} className={isTotal ? 'total-row' : ''}>
                         {brand_table.columns.map(c => (
                           <td key={c} style={{ textAlign: (c === '#' || c === 'Brand') ? 'left' : 'right' }}>
-                            {typeof r[c] === 'number' ? r[c].toFixed(2) : r[c]}
+                            {formatVal(r[c])}
                           </td>
                         ))}
                       </tr>
@@ -257,7 +273,7 @@ export default function DashboardTab() {
                       <tr key={i} className={isTotal ? 'total-row' : ''}>
                         {branch_table.columns.map(c => (
                           <td key={c} style={{ textAlign: c === 'Branch' ? 'left' : 'right' }}>
-                            {typeof r[c] === 'number' ? r[c].toFixed(2) : r[c]}
+                            {formatVal(r[c])}
                           </td>
                         ))}
                       </tr>
@@ -324,7 +340,7 @@ export default function DashboardTab() {
                           fontWeight: cellStyle.fontWeight
                         }}
                       >
-                        {typeof val === 'number' ? val.toFixed(2) : val}
+                        {formatVal(val)}
                       </td>
                     );
                   })}

@@ -91,7 +91,7 @@ export default function RawSheetTab({ sheetName }) {
             </div>
             <div className="metric-card">
               <div className="metric-label">Total Value in Crores (Cr)</div>
-              <div className="metric-value">₹{kpis.amount_crores?.toFixed(2) || '0.00'} Cr</div>
+              <div className="metric-value">₹{Number(kpis.amount_crores || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr</div>
             </div>
             <div className="metric-card">
               <div className="metric-label">SKUs</div>
@@ -117,11 +117,17 @@ export default function RawSheetTab({ sheetName }) {
             <tbody>
               {rows.map((r, i) => (
                 <tr key={i}>
-                  {columns.map(col => (
-                    <td key={col} style={{ textAlign: (typeof r[col] === 'number' || (typeof r[col] === 'string' && r[col].endsWith('%'))) ? 'right' : 'left' }}>
-                      {r[col]}
-                    </td>
-                  ))}
+                  {columns.map(col => {
+                    const val = r[col];
+                    const isNumeric = typeof val === 'number';
+                    const isCrCol = col.toLowerCase().includes('cr') || col.toLowerCase().includes('value');
+                    const displayVal = (isNumeric && isCrCol) ? Number(val.toFixed(1)).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : (isNumeric ? val.toLocaleString('en-IN') : val);
+                    return (
+                      <td key={col} style={{ textAlign: (isNumeric || (typeof val === 'string' && val.endsWith('%'))) ? 'right' : 'left' }}>
+                        {displayVal}
+                      </td>
+                    );
+                  })}
                 </tr>
               ))}
             </tbody>

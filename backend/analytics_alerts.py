@@ -136,7 +136,7 @@ def calculate_alerts_data(
                 "shelf_life_left": simplify_buckets(b_val),
                 "est_days": est_days(b_val),
                 "stock_cases": int(stk_val),
-                "value_cr": round(cr_val, 4),
+                "value_cr": round(float(cr_val), 1),
                 "risk": risk_lvl,
                 "action": suggest_action(risk_lvl, stk_val)
             })
@@ -155,8 +155,8 @@ def calculate_alerts_data(
             "risk_options": risk_options
         },
         "kpis": {
-            "high_risk_value": round(total_high, 2),
-            "medium_risk_value": round(total_medium, 2),
+            "high_risk_value": round(float(total_high), 1),
+            "medium_risk_value": round(float(total_medium), 1),
             "high_risk_skus": high_skus,
             "medium_risk_skus": med_skus
         },
