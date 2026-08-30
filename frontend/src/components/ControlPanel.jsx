@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   X, UploadCloud, Layers, Trash2, CheckCircle2, Database, AlertTriangle, 
-  Sun, Moon, Check, ArrowRight, Loader2
+  Sun, Moon, Sparkles, Check, ArrowRight, Loader2
 } from 'lucide-react';
 import { uploadXlsbWithProgress, selectFile, deleteFile } from '../api';
 
@@ -12,6 +12,7 @@ export default function ControlPanel({
   activeFileId,
   onRefresh,
   theme,
+  onSetTheme,
   onToggleTheme
 }) {
   const [selectedFileId, setSelectedFileId] = useState(activeFileId);
@@ -141,7 +142,7 @@ export default function ControlPanel({
         {/* Drawer Header */}
         <div className="drawer-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Layers size={18} color="#7C3AED" />
+            <Layers size={18} color="var(--accent-primary)" />
             <h2>Control Panel</h2>
           </div>
           <button 
@@ -156,7 +157,7 @@ export default function ControlPanel({
         {/* Database Status Indicator */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', background: 'var(--tbl-bg)', border: '1px solid var(--tbl-border)', borderRadius: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Database size={14} color="#7C3AED" />
+            <Database size={14} color="var(--accent-primary)" />
             <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-main)' }}>Storage</span>
           </div>
           <span className="db-status-badge">
@@ -184,7 +185,7 @@ export default function ControlPanel({
               accept=".xlsb"
               onChange={(e) => handleFileUpload(e.target.files?.[0])}
             />
-            <UploadCloud size={26} color="#7C3AED" style={{ margin: '0 auto 4px auto' }} />
+            <UploadCloud size={26} color="var(--accent-primary)" style={{ margin: '0 auto 4px auto' }} />
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-main)' }}>
               {uploading ? 'Processing & Storing...' : 'Click or Drag .xlsb here'}
             </div>
@@ -320,58 +321,91 @@ export default function ControlPanel({
           )}
         </div>
 
-        {/* Theme Mode Selector (Two Distinct Buttons with Active Indicators) */}
+        {/* Theme Mode Selector (Light, Dark, Dynamic) */}
         <div style={{ marginTop: 'auto', paddingTop: 8, borderTop: '1.5px solid var(--tbl-border)' }}>
           <div style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--text-main)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.3 }}>
             Appearance Theme
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 5 }}>
             <button 
-              onClick={() => theme !== 'light' && onToggleTheme()}
+              onClick={() => {
+                if (onSetTheme) onSetTheme('light');
+                else if (onToggleTheme) onToggleTheme('light');
+              }}
               style={{
                 background: theme === 'light' ? 'linear-gradient(135deg, #7C3AED, #6D28D9)' : 'var(--tab-nav-bg)',
                 color: theme === 'light' ? '#FFFFFF' : 'var(--text-main)',
                 border: theme === 'light' ? '1px solid #7C3AED' : '1px solid var(--tbl-border)',
                 borderRadius: 8,
-                padding: '6px 10px',
-                fontSize: 11.5,
+                padding: '6px 4px',
+                fontSize: 11,
                 fontWeight: 800,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 6,
+                gap: 4,
                 boxShadow: theme === 'light' ? '0 2px 6px rgba(124, 58, 237, 0.25)' : 'none',
                 transition: 'all 0.15s ease'
               }}
             >
-              <Sun size={13} color={theme === 'light' ? '#FFFFFF' : '#6D28D9'} />
+              <Sun size={12} color={theme === 'light' ? '#FFFFFF' : '#6D28D9'} />
               <span>Light</span>
-              {theme === 'light' && <Check size={12} strokeWidth={3} />}
+              {theme === 'light' && <Check size={11} strokeWidth={3} />}
             </button>
 
             <button 
-              onClick={() => theme !== 'dark' && onToggleTheme()}
+              onClick={() => {
+                if (onSetTheme) onSetTheme('dark');
+                else if (onToggleTheme) onToggleTheme('dark');
+              }}
               style={{
                 background: theme === 'dark' ? 'linear-gradient(135deg, #7C3AED, #6D28D9)' : 'var(--tab-nav-bg)',
                 color: theme === 'dark' ? '#FFFFFF' : 'var(--text-main)',
                 border: theme === 'dark' ? '1px solid #7C3AED' : '1px solid var(--tbl-border)',
                 borderRadius: 8,
-                padding: '6px 10px',
-                fontSize: 11.5,
+                padding: '6px 4px',
+                fontSize: 11,
                 fontWeight: 800,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 6,
+                gap: 4,
                 boxShadow: theme === 'dark' ? '0 2px 6px rgba(124, 58, 237, 0.25)' : 'none',
                 transition: 'all 0.15s ease'
               }}
             >
-              <Moon size={13} color={theme === 'dark' ? '#FFFFFF' : '#A855F7'} />
+              <Moon size={12} color={theme === 'dark' ? '#FFFFFF' : '#A855F7'} />
               <span>Dark</span>
-              {theme === 'dark' && <Check size={12} strokeWidth={3} />}
+              {theme === 'dark' && <Check size={11} strokeWidth={3} />}
+            </button>
+
+            <button 
+              onClick={() => {
+                if (onSetTheme) onSetTheme('dynamic');
+                else if (onToggleTheme) onToggleTheme('dynamic');
+              }}
+              style={{
+                background: theme === 'dynamic' ? 'linear-gradient(135deg, #E2424A, #FFA588)' : 'var(--tab-nav-bg)',
+                color: theme === 'dynamic' ? '#FFFFFF' : 'var(--text-main)',
+                border: theme === 'dynamic' ? '1px solid #E2424A' : '1px solid var(--tbl-border)',
+                borderRadius: 8,
+                padding: '6px 4px',
+                fontSize: 11,
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 4,
+                boxShadow: theme === 'dynamic' ? '0 2px 6px rgba(226, 66, 74, 0.3)' : 'none',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <Sparkles size={12} color={theme === 'dynamic' ? '#FFFFFF' : 'var(--accent-primary)'} />
+              <span>Dynamic</span>
+              {theme === 'dynamic' && <Check size={11} strokeWidth={3} />}
             </button>
           </div>
         </div>

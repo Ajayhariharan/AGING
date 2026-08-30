@@ -1,6 +1,6 @@
-/* ===== LIGHT & DARK PURPLE DUAL-THEME COCKPIT STYLES ===== */
+/* ===== LIGHT, DARK, & DYNAMIC THEMES ===== */
 
-/* --- LIGHT PURPLE THEME --- */
+/* --- LIGHT PURPLE THEME (Original Cockpit Style) --- */
 :root, [data-theme="light"] {
   --bg-color: #F8F5FC;
   --header-bg: rgba(248, 245, 252, 0.98);
@@ -24,6 +24,7 @@
   --tab-nav-border: #DDD6FE;
   --tab-pill-color: #581C87;
   --tab-pill-hover: #DDD6FE;
+  --tab-active-bg: linear-gradient(135deg, #7C3AED, #6D28D9);
   --chart-card-bg: #FFFFFF;
   --chart-grid-stroke: #EDE9FE;
   --metric-label-color: #6B21A8;
@@ -33,10 +34,13 @@
   --scrollbar-track: #F3E8FF;
   --scrollbar-thumb: #C4B5FD;
   --scrollbar-thumb-hover: #A855F7;
+  --accent-primary: #7C3AED;
+  --accent-secondary: #A855F7;
+  --accent-warm: #F59E0B;
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* --- DARK PURPLE THEME --- */
+/* --- DARK PURPLE THEME (Original Cockpit Style) --- */
 [data-theme="dark"] {
   --bg-color: #0F081D;
   --header-bg: rgba(15, 8, 29, 0.98);
@@ -60,6 +64,7 @@
   --tab-nav-border: #4C1D95;
   --tab-pill-color: #DDD6FE;
   --tab-pill-hover: #3B1261;
+  --tab-active-bg: linear-gradient(135deg, #7C3AED, #6D28D9);
   --chart-card-bg: #1A0F2E;
   --chart-grid-stroke: #2E1065;
   --metric-label-color: #C084FC;
@@ -69,6 +74,49 @@
   --scrollbar-track: #150A26;
   --scrollbar-thumb: #6D28D9;
   --scrollbar-thumb-hover: #8B5CF6;
+  --accent-primary: #7C3AED;
+  --accent-secondary: #9333EA;
+  --accent-warm: #F59E0B;
+  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* --- DYNAMIC THEME (Sunset Ember, Crimson & Deep Slate Gradient from Image Reference) --- */
+[data-theme="dynamic"] {
+  --bg-color: #0D141F;
+  --header-bg: rgba(13, 20, 31, 0.98);
+  --sidebar-bg-start: #141A29;
+  --sidebar-bg-mid: #1D233A;
+  --sidebar-bg-end: #282545;
+  --text-main: #FFF1C2;
+  --text-body: #FEE9D6;
+  --tbl-border: rgba(226, 66, 74, 0.35);
+  --tbl-bg: #161D2E;
+  --tbl-hdr-bg: linear-gradient(135deg, #B41B2B 0%, #E2424A 50%, #D3785D 100%);
+  --tbl-hdr-text: #FFFFFF;
+  --tbl-hdr-border: #E2424A;
+  --tbl-bg-odd: #1D253B;
+  --card-bg: linear-gradient(135deg, #182033 0%, #222544 60%, #322548 100%);
+  --card-border: rgba(255, 165, 136, 0.35);
+  --input-bg: #131927;
+  --input-border: rgba(255, 165, 136, 0.35);
+  --input-text: #FFF1C2;
+  --tab-nav-bg: #131927;
+  --tab-nav-border: rgba(226, 66, 74, 0.3);
+  --tab-pill-color: #FFA588;
+  --tab-pill-hover: rgba(226, 66, 74, 0.2);
+  --tab-active-bg: linear-gradient(135deg, #E2424A, #FFA588);
+  --chart-card-bg: #161D2E;
+  --chart-grid-stroke: rgba(255, 241, 194, 0.08);
+  --metric-label-color: #FFA588;
+  --metric-val-color: #FFF1C2;
+  --metric-delta-color: #73F6A6;
+  --modal-bg: #161D2E;
+  --scrollbar-track: #0D141F;
+  --scrollbar-thumb: #E2424A;
+  --scrollbar-thumb-hover: #FFA588;
+  --accent-primary: #E2424A;
+  --accent-secondary: #FFA588;
+  --accent-warm: #73F6A6;
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -229,10 +277,10 @@ html, body, #root {
 }
 
 .tab-pill.active {
-  background: linear-gradient(135deg, #7C3AED, #6D28D9);
+  background: var(--tab-active-bg);
   color: #FFFFFF !important;
   font-weight: 800;
-  box-shadow: 0 2px 6px rgba(109, 40, 217, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 /* ========================================================= */
@@ -608,7 +656,7 @@ h2.section-header, h3.section-header {
 
 .multiselect-item.active {
   background: var(--tab-nav-bg);
-  color: #7C3AED;
+  color: var(--accent-primary);
 }
 
 /* ========================================================= */
@@ -1007,13 +1055,13 @@ h2.section-header, h3.section-header {
 }
 
 .history-card-selectable:hover {
-  border-color: #A855F7;
+  border-color: var(--accent-primary);
 }
 
 .history-card-selectable.selected {
-  border-color: #7C3AED;
+  border-color: var(--accent-primary);
   background: var(--tab-nav-bg);
-  box-shadow: 0 0 0 1.5px #7C3AED;
+  box-shadow: 0 0 0 1.5px var(--accent-primary);
 }
 
 .custom-radio-check {
@@ -1030,15 +1078,15 @@ h2.section-header, h3.section-header {
 }
 
 .history-card-selectable.selected .custom-radio-check {
-  background: #7C3AED;
-  border-color: #7C3AED;
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
   color: #FFFFFF;
 }
 
 /* Primary Load Action Button */
 .btn-load-file {
   width: 100%;
-  background: linear-gradient(135deg, #7C3AED, #6D28D9);
+  background: var(--tab-active-bg);
   color: #FFFFFF;
   border: none;
   border-radius: 8px;
@@ -1050,7 +1098,7 @@ h2.section-header, h3.section-header {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   transition: all 0.2s ease;
 }
 

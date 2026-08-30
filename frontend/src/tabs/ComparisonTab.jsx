@@ -134,8 +134,6 @@ export default function ComparisonTab() {
     if (!branchDataMap[item.branch]) branchDataMap[item.branch] = { branch: item.branch };
     branchDataMap[item.branch][item.week] = item.value_cr;
   });
-  const branchChartData = Object.values(branchDataMap);
-
   const colors = ['#7C3AED', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#14B8A6'];
   const bucketColors = ['#DC2626', '#EA580C', '#D97706', '#10B981', '#2563EB', '#7C3AED'];
 
@@ -398,7 +396,7 @@ export default function ComparisonTab() {
             <button
               onClick={() => { setMode('weekly'); setSelectedWeeks([]); }}
               style={{
-                background: mode === 'weekly' ? 'linear-gradient(135deg, #7C3AED, #6D28D9)' : 'transparent',
+                background: mode === 'weekly' ? 'var(--tab-active-bg)' : 'transparent',
                 color: mode === 'weekly' ? '#fff' : 'var(--text-main)',
                 border: 'none',
                 borderRadius: 6,
@@ -413,7 +411,7 @@ export default function ComparisonTab() {
             <button
               onClick={() => { setMode('monthly'); setSelectedWeeks([]); }}
               style={{
-                background: mode === 'monthly' ? 'linear-gradient(135deg, #7C3AED, #6D28D9)' : 'transparent',
+                background: mode === 'monthly' ? 'var(--tab-active-bg)' : 'transparent',
                 color: mode === 'monthly' ? '#fff' : 'var(--text-main)',
                 border: 'none',
                 borderRadius: 6,
@@ -428,7 +426,7 @@ export default function ComparisonTab() {
             <button
               onClick={() => { setMode('yearly'); setSelectedWeeks([]); }}
               style={{
-                background: mode === 'yearly' ? 'linear-gradient(135deg, #7C3AED, #6D28D9)' : 'transparent',
+                background: mode === 'yearly' ? 'var(--tab-active-bg)' : 'transparent',
                 color: mode === 'yearly' ? '#fff' : 'var(--text-main)',
                 border: 'none',
                 borderRadius: 6,

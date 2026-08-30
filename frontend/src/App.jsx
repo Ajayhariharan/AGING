@@ -86,7 +86,7 @@ export default function App() {
             <SlidersHorizontal size={14} />
             <span>Control Panel</span>
             {history.length > 0 && (
-              <span style={{ background: '#7C3AED', color: '#fff', fontSize: 10, padding: '1px 6px', borderRadius: 10 }}>
+              <span style={{ background: 'var(--accent-primary)', color: '#fff', fontSize: 10, padding: '1px 6px', borderRadius: 10 }}>
                 {history.length}
               </span>
             )}
@@ -96,7 +96,7 @@ export default function App() {
 
           {sheetsInfo.loaded && sheetsInfo.filename && (
             <div className="active-file-header-pill" title={sheetsInfo.filename}>
-              <FileSpreadsheet size={13} color="#7C3AED" />
+              <FileSpreadsheet size={13} color="var(--accent-primary)" />
               <span>{sheetsInfo.filename}</span>
             </div>
           )}
@@ -128,7 +128,8 @@ export default function App() {
         activeFileId={activeFileId}
         onRefresh={loadData}
         theme={theme}
-        onToggleTheme={toggleTheme}
+        onSetTheme={setTheme}
+        onToggleTheme={setTheme}
       />
 
       {/* ========================================================= */}
