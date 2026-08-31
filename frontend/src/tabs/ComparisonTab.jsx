@@ -5,7 +5,20 @@ import {
 } from 'recharts';
 import { ChevronDown, Check } from 'lucide-react';
 
-export default function ComparisonTab() {
+export default function ComparisonTab({ theme: propTheme }) {
+  const [currentTheme, setCurrentTheme] = useState(propTheme || (typeof document !== 'undefined' ? document.documentElement.getAttribute('data-theme') : 'light') || 'light');
+  
+  useEffect(() => {
+    if (propTheme) {
+      setCurrentTheme(propTheme);
+    }
+    const observer = new MutationObserver(() => {
+      setCurrentTheme(document.documentElement.getAttribute('data-theme') || 'light');
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, [propTheme]);
+
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
   
@@ -136,8 +149,19 @@ export default function ComparisonTab() {
   });
   const branchChartData = Object.values(branchDataMap);
 
-  const colors = ['#7C3AED', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#14B8A6'];
-  const bucketColors = ['#DC2626', '#EA580C', '#D97706', '#10B981', '#2563EB', '#7C3AED'];
+  const isDynamic = currentTheme === 'dynamic';
+
+  // Multi-series category colors from uploaded palette image:
+  // Emerald (#1A946F), Crimson (#E2424A), Ochre Gold (#E0B362), Deep Forest Teal (#114B5F), Mauve Rose (#B45C6C), Terracotta (#D3785D), Deep Plum (#61305D), Mint Sage (#88D398), Neon Mint (#73F6A6), Deep Magenta (#A75377)
+  const colors = isDynamic 
+    ? ['#1A946F', '#E2424A', '#E0B362', '#114B5F', '#B45C6C', '#D3785D', '#61305D', '#88D398', '#73F6A6', '#A75377']
+    : ['#7C3AED', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#14B8A6'];
+
+  // Shelf-Life 6-bucket gradient (20-30% to 70-75%) from image cards:
+  // Crimson (#E2424A), Terracotta (#D3785D), Ochre Gold (#E0B362), Mint Sage (#88D398), Emerald (#1A946F), Forest Teal (#114B5F)
+  const bucketColors = isDynamic
+    ? ['#E2424A', '#D3785D', '#E0B362', '#88D398', '#1A946F', '#114B5F']
+    : ['#DC2626', '#EA580C', '#D97706', '#10B981', '#2563EB', '#7C3AED'];
 
   // Render dynamic comparison matrix table with badge and color formatting
   const renderMatrixTable = (title, matrixData, defaultLeftCol = 'CATEGORY') => {
@@ -711,14 +735,53 @@ export default function ComparisonTab() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1, minHeight: 0, overflow: 'auto' }}>
               {/* Monthly Top 3 Charts */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, minHeight: 185, height: 200, flexShrink: 0 }}>
-                {/* CHART 1: Grouped Bar Chart – Category Stock: Start vs. Current Month */}
+                {/* CHART 1: 100% Stacked Bar Chart – Shelf-Life Composition Shift (Red-Zone vs Safe Stock) */}
+                <div className="chart-card">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                    <h4>Shelf-Life Composition Shift (Red-Zone vs Safe)</h4>
+                    <div style={{ display: 'flex', gap: 6, fontSize: 8.5, fontWeight: 700 }}>
+                      <span style={{ color: isDynamic ? '#1A946F' : '#10B981' }}>● Safe (50-75%+)</span>
+                      <span style={{ color: isDynamic ? '#E2424A' : '#EF4444' }}>● Danger (20-50%)</span>
+                    </div>
+                  </div>
+                  <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={charts.shelf_life_composition_shift || []} margin={{ top: 6, right: 12, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid-stroke)" />
+                        <XAxis dataKey="month" tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
+                        <YAxis tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
+                        <Tooltip
+                          formatter={(val, name, props) => {
+                            const entry = props.payload;
+                            const isSafe = name.includes('Safe');
+                            const pct = isSafe ? entry.safe_pct : entry.danger_pct;
+                            return [`₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr (${pct}%)`, name];
+                          }}
+                          labelFormatter={(label, payload) => {
+                            if (payload && payload[0]) {
+                              const d = payload[0].payload;
+                              return `${label} | Total Stock: ₹${Number(d.total_cr || 0).toFixed(1)} Cr`;
+                            }
+                            return label;
+                          }}
+                        />
+                        {/* Bottom Green Segment: Safe / Fresh Stock (50% to 75%+) */}
+                        <Bar dataKey="Safe Stock (50-75%+)" name="Safe Stock (50-75%+)" stackId="shiftStack" fill={isDynamic ? '#1A946F' : '#10B981'} />
+                        {/* Top Red Segment: Near-Expiry Danger Zone (20% to 50%) */}
+                        <Bar dataKey="Red-Zone Risk (20-50%)" name="Red-Zone Risk (20-50%)" stackId="shiftStack" fill={isDynamic ? '#E2424A' : '#EF4444'} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* CHART 2: Grouped Bar Chart – Category Stock: Start vs. Current Month */}
                 <div className="chart-card">
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
                     <h4>Category Stock: Start vs. Current Month</h4>
                     <div style={{ display: 'flex', gap: 6, fontSize: 8.5, fontWeight: 700 }}>
-                      <span style={{ color: '#3B82F6' }}>● Start</span>
-                      <span style={{ color: '#10B981' }}>● Reduced (Good)</span>
-                      <span style={{ color: '#EF4444' }}>● Increased (Risk)</span>
+                      <span style={{ color: isDynamic ? '#114B5F' : '#3B82F6' }}>● Start</span>
+                      <span style={{ color: isDynamic ? '#1A946F' : '#10B981' }}>● Reduced (Good)</span>
+                      <span style={{ color: isDynamic ? '#E2424A' : '#EF4444' }}>● Increased (Risk)</span>
                     </div>
                   </div>
                   <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
@@ -728,7 +791,7 @@ export default function ComparisonTab() {
                         <XAxis dataKey="category" tick={{ fill: 'var(--text-main)', fontSize: 8 }} interval={0} />
                         <YAxis tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
                         <Tooltip
-                          formatter={(val, name, props) => {
+                          formatter={(val, name) => {
                             return [`₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr`, name];
                           }}
                           labelFormatter={(label, payload) => {
@@ -744,14 +807,14 @@ export default function ComparisonTab() {
                         <Bar 
                           dataKey={charts.cat_baseline_vs_current?.[0]?.start_month ? `${charts.cat_baseline_vs_current[0].start_month} (Start)` : "start_val"} 
                           name={charts.cat_baseline_vs_current?.[0]?.start_month ? `${charts.cat_baseline_vs_current[0].start_month} (Start)` : "Start Month"} 
-                          fill="#3B82F6" 
+                          fill={isDynamic ? '#114B5F' : '#3B82F6'} 
                         />
                         <Bar 
                           dataKey={charts.cat_baseline_vs_current?.[0]?.current_month ? `${charts.cat_baseline_vs_current[0].current_month} (Current)` : "current_val"} 
                           name={charts.cat_baseline_vs_current?.[0]?.current_month ? `${charts.cat_baseline_vs_current[0].current_month} (Current)` : "Current Month"}
                         >
                           {(charts.cat_baseline_vs_current || []).map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.is_reduced ? '#10B981' : '#EF4444'} />
+                            <Cell key={`cell-${index}`} fill={entry.is_reduced ? (isDynamic ? '#1A946F' : '#10B981') : (isDynamic ? '#E2424A' : '#EF4444')} />
                           ))}
                         </Bar>
                       </BarChart>
@@ -759,60 +822,33 @@ export default function ComparisonTab() {
                   </div>
                 </div>
 
-                {/* CHART 2: Line Chart – Critical Red-Zone Risk Trajectory (20% to 50%) */}
+                {/* CHART 3: Grouped Bar Chart – Top Brands: Near-Expiry Exposure (Current Month) */}
                 <div className="chart-card">
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
-                    <h4>Critical Red-Zone Risk Trajectory (20% to 50%)</h4>
+                    <h4>Top Brands: Near-Expiry Exposure</h4>
                     <div style={{ display: 'flex', gap: 6, fontSize: 8.5, fontWeight: 700 }}>
-                      <span style={{ color: '#EF4444' }}>● 20-30%</span>
-                      <span style={{ color: '#EA580C' }}>● 30-40%</span>
-                      <span style={{ color: '#D97706' }}>● 40-50%</span>
+                      <span style={{ color: isDynamic ? '#114B5F' : '#3B82F6' }}>● Total Stock</span>
+                      <span style={{ color: isDynamic ? '#E2424A' : '#EF4444' }}>● Danger (20-50%)</span>
                     </div>
                   </div>
                   <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={charts.red_zone_trajectory || []} margin={{ top: 6, right: 12, left: -20, bottom: 0 }}>
+                      <BarChart data={charts.top_brands_near_expiry || []} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid-stroke)" />
-                        <XAxis dataKey="month" tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
+                        <XAxis dataKey="brand" tick={{ fill: 'var(--text-main)', fontSize: 8 }} interval={0} />
                         <YAxis tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
-                        <Tooltip formatter={(val, name) => [`₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr`, name]} />
-                        <Line type="monotone" dataKey="20% to 30%" name="20% to 30% (Expiring immediately)" stroke="#EF4444" strokeWidth={2.5} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                        <Line type="monotone" dataKey="30% to 40%" name="30% to 40% (Expiring soon)" stroke="#EA580C" strokeWidth={2} strokeDasharray="3 3" dot={{ r: 3 }} />
-                        <Line type="monotone" dataKey="40% to 50%" name="40% to 50% (Borderline risk)" stroke="#D97706" strokeWidth={2} strokeDasharray="3 3" dot={{ r: 3 }} />
-                        <Line type="monotone" dataKey="Total Red-Zone" name="Total Red-Zone (20-50%)" stroke="#7C3AED" strokeWidth={2} strokeDasharray="4 4" dot={{ r: 2 }} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-
-                {/* CHART 3: Histogram / Waterfall Column – Monthly Evacuation Velocity */}
-                <div className="chart-card">
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
-                    <h4>Monthly Evacuation Velocity</h4>
-                    <div style={{ display: 'flex', gap: 6, fontSize: 8.5, fontWeight: 700 }}>
-                      <span style={{ color: '#10B981' }}>▼ Negative = Cleared</span>
-                      <span style={{ color: '#EF4444' }}>▲ Positive = Accumulated</span>
-                    </div>
-                  </div>
-                  <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={charts.liquidation_velocity || []} margin={{ top: 6, right: 8, left: -20, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid-stroke)" />
-                        <XAxis dataKey="month" tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
-                        <YAxis tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
-                        <ReferenceLine y={0} stroke="var(--tbl-border)" />
-                        <Tooltip 
-                          formatter={(val, name, props) => {
-                            const v = Number(val || 0);
-                            const status = v <= 0 ? 'Stock Cleared (Good 🟢)' : 'Stock Piled Up (Action Needed 🔴)';
-                            return [`${v > 0 ? '+' : ''}₹${v.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr (${status})`, "Net Stock Cleared"];
+                        <Tooltip
+                          formatter={(val, name) => [`₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr`, name]}
+                          labelFormatter={(label, payload) => {
+                            if (payload && payload[0]) {
+                              const d = payload[0].payload;
+                              return `${label} | Red-Zone Exposure: ${d.risk_pct}% of brand stock`;
+                            }
+                            return label;
                           }}
                         />
-                        <Bar dataKey="velocity_cr" name="Net Stock Cleared (Cr)">
-                          {(charts.liquidation_velocity || []).map((entry, index) => (
-                            <Cell key={`cell-vel-${index}`} fill={entry.velocity_cr <= 0 ? '#10B981' : '#EF4444'} />
-                          ))}
-                        </Bar>
+                        <Bar dataKey="Total Stock" name="Total Stock (Cr)" fill={isDynamic ? '#114B5F' : '#3B82F6'} />
+                        <Bar dataKey="Near-Expiry (20-50%)" name="Near-Expiry Risk (Cr)" fill={isDynamic ? '#E2424A' : '#EF4444'} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>

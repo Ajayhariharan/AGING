@@ -148,9 +148,9 @@ export default function App() {
         ) : (
           <div className="active-tab-wrapper">
             {/* key={activeFileId} guarantees instant reactive update across all tabs upon loading a file */}
-            {activeTab === 'Dashboard' && <DashboardTab key={`dash_${activeFileId}`} />}
-            {activeTab === 'Alert View' && <AlertViewTab key={`alert_${activeFileId}`} />}
-            {activeTab === 'Comparison' && <ComparisonTab key={`comp_${activeFileId}`} />}
+            {activeTab === 'Dashboard' && <DashboardTab key={`dash_${activeFileId}`} theme={theme} />}
+            {activeTab === 'Alert View' && <AlertViewTab key={`alert_${activeFileId}`} theme={theme} />}
+            {activeTab === 'Comparison' && <ComparisonTab key={`comp_${activeFileId}`} theme={theme} />}
             {sheetsInfo.sheets.includes(activeTab) && <RawSheetTab key={`raw_${activeFileId}_${activeTab}`} sheetName={activeTab} />}
           </div>
         )}

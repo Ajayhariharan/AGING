@@ -80,43 +80,43 @@
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* --- DYNAMIC THEME (Light Theme with Emerald, Sage, Linen & Coral from Reference Palettes) --- */
+/* --- DYNAMIC THEME (Same Light Theme Colors) --- */
 [data-theme="dynamic"] {
-  --bg-color: #F4F7F5;
-  --header-bg: rgba(244, 247, 245, 0.98);
-  --sidebar-bg-start: #FAFBF9;
-  --sidebar-bg-mid: #F0F5F2;
-  --sidebar-bg-end: #E5EFEA;
-  --text-main: #114B5F;
-  --text-body: #1E343D;
-  --tbl-border: #C8DDD6;
+  --bg-color: #F8F5FC;
+  --header-bg: rgba(248, 245, 252, 0.98);
+  --sidebar-bg-start: #FAF5FF;
+  --sidebar-bg-mid: #F3E8FF;
+  --sidebar-bg-end: #EDE9FE;
+  --text-main: #2E1065;
+  --text-body: #1E1B4B;
+  --tbl-border: #DDD6FE;
   --tbl-bg: #FFFFFF;
-  --tbl-hdr-bg: linear-gradient(135deg, #1A946F 0%, #114B5F 100%);
-  --tbl-hdr-text: #FFFFFF;
-  --tbl-hdr-border: #114B5F;
-  --tbl-bg-odd: #F7FAF8;
-  --card-bg: linear-gradient(135deg, #FFFFFF 0%, #F9FAF8 60%, #EEF6F2 100%);
-  --card-border: #C5DCD4;
+  --tbl-hdr-bg: #C084FC;
+  --tbl-hdr-text: #2E1065;
+  --tbl-hdr-border: #A855F7;
+  --tbl-bg-odd: #FAF5FF;
+  --card-bg: linear-gradient(135deg, #FFFFFF 0%, #FAF5FF 60%, #F3E8FF 100%);
+  --card-border: #D8B4FE;
   --input-bg: #FFFFFF;
-  --input-border: #BBD7CE;
-  --input-text: #114B5F;
-  --tab-nav-bg: #E3EFEA;
-  --tab-nav-border: #C5DCD4;
-  --tab-pill-color: #114B5F;
-  --tab-pill-hover: #D2E7DF;
-  --tab-active-bg: linear-gradient(135deg, #1A946F 0%, #114B5F 100%);
+  --input-border: #DDD6FE;
+  --input-text: #2E1065;
+  --tab-nav-bg: #EDE9FE;
+  --tab-nav-border: #DDD6FE;
+  --tab-pill-color: #581C87;
+  --tab-pill-hover: #DDD6FE;
+  --tab-active-bg: linear-gradient(135deg, #7C3AED, #6D28D9);
   --chart-card-bg: #FFFFFF;
-  --chart-grid-stroke: #E2EDE8;
-  --metric-label-color: #114B5F;
-  --metric-val-color: #1A946F;
-  --metric-delta-color: #D3785D;
+  --chart-grid-stroke: #EDE9FE;
+  --metric-label-color: #6B21A8;
+  --metric-val-color: #2E1065;
+  --metric-delta-color: #581C87;
   --modal-bg: #FFFFFF;
-  --scrollbar-track: #EBF4F0;
-  --scrollbar-thumb: #88D398;
-  --scrollbar-thumb-hover: #1A946F;
-  --accent-primary: #1A946F;
-  --accent-secondary: #D3785D;
-  --accent-warm: #E0B362;
+  --scrollbar-track: #F3E8FF;
+  --scrollbar-thumb: #C4B5FD;
+  --scrollbar-thumb-hover: #A855F7;
+  --accent-primary: #7C3AED;
+  --accent-secondary: #A855F7;
+  --accent-warm: #F59E0B;
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 

@@ -314,7 +314,30 @@ def calculate_comparison_data(
                 }
             }
 
-        # Chart 1: Category Stock: Start vs. Current Month
+        # Chart 1: 100% Stacked Bar Chart – Shelf-Life Composition Shift (Red-Zone vs Safe Stock)
+        shelf_life_composition_shift = []
+        for p_name, m_df in filtered_month_dfs.items():
+            b_col = get_col_exact(m_df, ['Bucket %', 'bucket %', 'BUCKET %'])
+            c_cr = get_col_exact(m_df, ['Cr', 'CR', 'cr', 'Value'])
+            if b_col and c_cr and not m_df.empty:
+                m_df['Clean_B'] = m_df[b_col].apply(map_to_target_bucket)
+                danger_cr = float(m_df[m_df['Clean_B'].isin(['20 TO 30', '30 TO 40', '40 TO 50'])][c_cr].sum())
+                safe_cr = float(m_df[~m_df['Clean_B'].isin(['20 TO 30', '30 TO 40', '40 TO 50'])][c_cr].sum())
+                total_cr = danger_cr + safe_cr
+                safe_pct = round((safe_cr / total_cr * 100), 1) if total_cr > 0 else 0.0
+                danger_pct = round((danger_cr / total_cr * 100), 1) if total_cr > 0 else 0.0
+                shelf_life_composition_shift.append({
+                    "month": p_name,
+                    "Safe Stock (50-75%+)": round(safe_cr, 1),
+                    "Red-Zone Risk (20-50%)": round(danger_cr, 1),
+                    "safe_cr": round(safe_cr, 1),
+                    "danger_cr": round(danger_cr, 1),
+                    "safe_pct": safe_pct,
+                    "danger_pct": danger_pct,
+                    "total_cr": round(total_cr, 1)
+                })
+
+        # Chart 2: Grouped Bar Chart – Category-wise Stock: Start vs. Current Month
         cat_baseline_vs_current = []
         p_first = active_periods[0] if active_periods else None
         p_last = active_periods[-1] if active_periods else None
@@ -349,7 +372,42 @@ def calculate_comparison_data(
         for item in cat_baseline_vs_current:
             del item['_sort_val']
 
-        # Chart 2: Critical Red-Zone Risk Trajectory (20% to 50%)
+        # Chart 3: Grouped Bar Chart – Top Brands: Near-Expiry Exposure (Current Month)
+        top_brands_near_expiry = []
+        if not df_last.empty:
+            c_brand = get_col_exact(df_last, ['IOP', 'Brand', 'brand', 'BRAND'])
+            c_cr = get_col_exact(df_last, ['Cr', 'CR', 'cr', 'Value'])
+            b_col = get_col_exact(df_last, ['Bucket %', 'bucket %', 'BUCKET %'])
+            if c_brand and c_cr and b_col:
+                df_last_c = df_last.copy()
+                df_last_c['Clean_B'] = df_last_c[b_col].apply(map_to_target_bucket)
+                df_last_c['is_red_zone'] = df_last_c['Clean_B'].isin(['20 TO 30', '30 TO 40', '40 TO 50'])
+                
+                brand_agg = df_last_c.groupby(c_brand).apply(
+                    lambda g: pd.Series({
+                        'total_cr': float(g[c_cr].sum()),
+                        'red_zone_cr': float(g[g['is_red_zone']][c_cr].sum())
+                    })
+                ).reset_index()
+                
+                brand_agg = brand_agg[brand_agg['total_cr'] > 0]
+                brand_agg['risk_pct'] = brand_agg.apply(
+                    lambda r: round((r['red_zone_cr'] / r['total_cr'] * 100), 1) if r['total_cr'] > 0 else 0.0, 
+                    axis=1
+                )
+                brand_agg = brand_agg.sort_values(by=['red_zone_cr', 'total_cr'], ascending=[False, False]).head(7)
+                
+                for _, r in brand_agg.iterrows():
+                    top_brands_near_expiry.append({
+                        "brand": str(r[c_brand]),
+                        "Total Stock": round(float(r['total_cr']), 1),
+                        "Near-Expiry (20-50%)": round(float(r['red_zone_cr']), 1),
+                        "total_cr": round(float(r['total_cr']), 1),
+                        "red_zone_cr": round(float(r['red_zone_cr']), 1),
+                        "risk_pct": float(r['risk_pct'])
+                    })
+
+        # Backward compatibility for legacy chart keys
         red_zone_trajectory = []
         for p_name, m_df in filtered_month_dfs.items():
             b_col = get_col_exact(m_df, ['Bucket %', 'bucket %', 'BUCKET %'])
@@ -371,7 +429,6 @@ def calculate_comparison_data(
                     "40 TO 50": round(float(b40), 1)
                 })
 
-        # Chart 3: Monthly Evacuation Velocity (Net Stock Cleared per Month)
         liquidation_velocity = []
         for p_name in active_periods:
             m_df = filtered_month_dfs.get(p_name, pd.DataFrame())
@@ -387,7 +444,7 @@ def calculate_comparison_data(
                         w_last = sorted_w[-1]
                         val_w1 = float(m_df[m_df[w_col].astype(str).str.strip() == w_first][c_cr].sum())
                         val_w4 = float(m_df[m_df[w_col].astype(str).str.strip() == w_last][c_cr].sum())
-                        cleared_val = val_w4 - val_w1  # Negative if cleared, Positive if piled up
+                        cleared_val = val_w4 - val_w1
                     else:
                         cleared_val = 0.0
             
@@ -397,7 +454,6 @@ def calculate_comparison_data(
                 "is_clearing": cleared_val <= 0
             })
 
-        # Fallback to MoM step difference if individual files don't have internal weekly splits
         if all(item["velocity_cr"] == 0.0 for item in liquidation_velocity) and len(active_periods) >= 2:
             month_totals = {p: float(filtered_month_dfs[p][get_col_exact(filtered_month_dfs[p], ['Cr', 'CR', 'cr', 'Value'])].sum()) if (get_col_exact(filtered_month_dfs[p], ['Cr', 'CR', 'cr', 'Value']) and not filtered_month_dfs[p].empty) else 0.0 for p in active_periods}
             liquidation_velocity = []
@@ -616,8 +672,10 @@ def calculate_comparison_data(
                 "safe_stock_cr": round(float(safe_cr), 1)
             },
             "charts": {
-                "red_zone_trajectory": red_zone_trajectory,
+                "shelf_life_composition_shift": shelf_life_composition_shift,
                 "cat_baseline_vs_current": cat_baseline_vs_current,
+                "top_brands_near_expiry": top_brands_near_expiry,
+                "red_zone_trajectory": red_zone_trajectory,
                 "liquidation_velocity": liquidation_velocity,
                 "cat_evolution": cat_evolution,
                 "bucket_migration": bucket_migration,
