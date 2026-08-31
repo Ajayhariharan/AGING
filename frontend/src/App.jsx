@@ -9,7 +9,6 @@ import RawSheetTab from './tabs/RawSheetTab';
 import DashboardTab from './tabs/DashboardTab';
 import AlertViewTab from './tabs/AlertViewTab';
 import ComparisonTab from './tabs/ComparisonTab';
-import TrendAnalysisTab from './tabs/TrendAnalysisTab';
 
 export default function App() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -64,7 +63,6 @@ export default function App() {
     allTabs.push('Dashboard');
     allTabs.push('Alert View');
     allTabs.push('Comparison');
-    allTabs.push('Trend Analysis');
   }
 
   return (
@@ -153,7 +151,6 @@ export default function App() {
             {activeTab === 'Dashboard' && <DashboardTab key={`dash_${activeFileId}`} />}
             {activeTab === 'Alert View' && <AlertViewTab key={`alert_${activeFileId}`} />}
             {activeTab === 'Comparison' && <ComparisonTab key={`comp_${activeFileId}`} />}
-            {activeTab === 'Trend Analysis' && <TrendAnalysisTab key={`trend_${activeFileId}`} />}
             {sheetsInfo.sheets.includes(activeTab) && <RawSheetTab key={`raw_${activeFileId}_${activeTab}`} sheetName={activeTab} />}
           </div>
         )}
