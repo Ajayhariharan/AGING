@@ -387,9 +387,9 @@ export default function ControlPanel({
                 else if (onToggleTheme) onToggleTheme('dynamic');
               }}
               style={{
-                background: theme === 'dynamic' ? 'linear-gradient(135deg, #E2424A, #FFA588)' : 'var(--tab-nav-bg)',
+                background: theme === 'dynamic' ? 'linear-gradient(135deg, #1A946F, #114B5F)' : 'var(--tab-nav-bg)',
                 color: theme === 'dynamic' ? '#FFFFFF' : 'var(--text-main)',
-                border: theme === 'dynamic' ? '1px solid #E2424A' : '1px solid var(--tbl-border)',
+                border: theme === 'dynamic' ? '1px solid #1A946F' : '1px solid var(--tbl-border)',
                 borderRadius: 8,
                 padding: '6px 4px',
                 fontSize: 11,
@@ -399,11 +399,11 @@ export default function ControlPanel({
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 4,
-                boxShadow: theme === 'dynamic' ? '0 2px 6px rgba(226, 66, 74, 0.3)' : 'none',
+                boxShadow: theme === 'dynamic' ? '0 2px 6px rgba(26, 148, 111, 0.3)' : 'none',
                 transition: 'all 0.15s ease'
               }}
             >
-              <Sparkles size={12} color={theme === 'dynamic' ? '#FFFFFF' : 'var(--accent-primary)'} />
+              <Sparkles size={12} color={theme === 'dynamic' ? '#FFFFFF' : '#1A946F'} />
               <span>Dynamic</span>
               {theme === 'dynamic' && <Check size={11} strokeWidth={3} />}
             </button>

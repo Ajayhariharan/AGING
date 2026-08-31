@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getComparisonData } from '../api';
 import { 
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid 
+  LineChart, Line, BarChart, Bar, Cell, ReferenceLine, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid 
 } from 'recharts';
 import { ChevronDown, Check } from 'lucide-react';
 
@@ -134,6 +134,8 @@ export default function ComparisonTab() {
     if (!branchDataMap[item.branch]) branchDataMap[item.branch] = { branch: item.branch };
     branchDataMap[item.branch][item.week] = item.value_cr;
   });
+  const branchChartData = Object.values(branchDataMap);
+
   const colors = ['#7C3AED', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#14B8A6'];
   const bucketColors = ['#DC2626', '#EA580C', '#D97706', '#10B981', '#2563EB', '#7C3AED'];
 
@@ -708,10 +710,65 @@ export default function ComparisonTab() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1, minHeight: 0, overflow: 'auto' }}>
               {/* Monthly Top 3 Charts */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, minHeight: 180, height: 195, flexShrink: 0 }}>
-                {/* MONTHLY CHART 1: Red-Zone Shelf-Life Trajectory (20% to 50%) */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, minHeight: 185, height: 200, flexShrink: 0 }}>
+                {/* CHART 1: Grouped Bar Chart – Category Stock: Start vs. Current Month */}
                 <div className="chart-card">
-                  <h4>Red-Zone Shelf-Life Trajectory (20% to 50%)</h4>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                    <h4>Category Stock: Start vs. Current Month</h4>
+                    <div style={{ display: 'flex', gap: 6, fontSize: 8.5, fontWeight: 700 }}>
+                      <span style={{ color: '#3B82F6' }}>● Start</span>
+                      <span style={{ color: '#10B981' }}>● Reduced (Good)</span>
+                      <span style={{ color: '#EF4444' }}>● Increased (Risk)</span>
+                    </div>
+                  </div>
+                  <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={charts.cat_baseline_vs_current || []} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid-stroke)" />
+                        <XAxis dataKey="category" tick={{ fill: 'var(--text-main)', fontSize: 8 }} interval={0} />
+                        <YAxis tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
+                        <Tooltip
+                          formatter={(val, name, props) => {
+                            return [`₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr`, name];
+                          }}
+                          labelFormatter={(label, payload) => {
+                            if (payload && payload[0]) {
+                              const d = payload[0].payload;
+                              const delta = d.net_change;
+                              const sign = delta > 0 ? '+' : '';
+                              return `${label} | Net Change: ${sign}${Number(delta || 0).toFixed(1)} Cr (${d.is_reduced ? 'Reduced 🟢' : 'Increased 🔴'})`;
+                            }
+                            return label;
+                          }}
+                        />
+                        <Bar 
+                          dataKey={charts.cat_baseline_vs_current?.[0]?.start_month ? `${charts.cat_baseline_vs_current[0].start_month} (Start)` : "start_val"} 
+                          name={charts.cat_baseline_vs_current?.[0]?.start_month ? `${charts.cat_baseline_vs_current[0].start_month} (Start)` : "Start Month"} 
+                          fill="#3B82F6" 
+                        />
+                        <Bar 
+                          dataKey={charts.cat_baseline_vs_current?.[0]?.current_month ? `${charts.cat_baseline_vs_current[0].current_month} (Current)` : "current_val"} 
+                          name={charts.cat_baseline_vs_current?.[0]?.current_month ? `${charts.cat_baseline_vs_current[0].current_month} (Current)` : "Current Month"}
+                        >
+                          {(charts.cat_baseline_vs_current || []).map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.is_reduced ? '#10B981' : '#EF4444'} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* CHART 2: Line Chart – Critical Red-Zone Risk Trajectory (20% to 50%) */}
+                <div className="chart-card">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                    <h4>Critical Red-Zone Risk Trajectory (20% to 50%)</h4>
+                    <div style={{ display: 'flex', gap: 6, fontSize: 8.5, fontWeight: 700 }}>
+                      <span style={{ color: '#EF4444' }}>● 20-30%</span>
+                      <span style={{ color: '#EA580C' }}>● 30-40%</span>
+                      <span style={{ color: '#D97706' }}>● 40-50%</span>
+                    </div>
+                  </div>
                   <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={charts.red_zone_trajectory || []} margin={{ top: 6, right: 12, left: -20, bottom: 0 }}>
@@ -719,56 +776,43 @@ export default function ComparisonTab() {
                         <XAxis dataKey="month" tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
                         <YAxis tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
                         <Tooltip formatter={(val, name) => [`₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr`, name]} />
-                        <Line type="monotone" dataKey="Total Red-Zone" stroke="#DC2626" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                        <Line type="monotone" dataKey="20 TO 30" stroke="#EF4444" strokeWidth={2} strokeDasharray="3 3" dot={{ r: 3 }} />
-                        <Line type="monotone" dataKey="30 TO 40" stroke="#EA580C" strokeWidth={2} strokeDasharray="3 3" dot={{ r: 3 }} />
-                        <Line type="monotone" dataKey="40 TO 50" stroke="#D97706" strokeWidth={2} strokeDasharray="3 3" dot={{ r: 3 }} />
+                        <Line type="monotone" dataKey="20% to 30%" name="20% to 30% (Expiring immediately)" stroke="#EF4444" strokeWidth={2.5} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                        <Line type="monotone" dataKey="30% to 40%" name="30% to 40% (Expiring soon)" stroke="#EA580C" strokeWidth={2} strokeDasharray="3 3" dot={{ r: 3 }} />
+                        <Line type="monotone" dataKey="40% to 50%" name="40% to 50% (Borderline risk)" stroke="#D97706" strokeWidth={2} strokeDasharray="3 3" dot={{ r: 3 }} />
+                        <Line type="monotone" dataKey="Total Red-Zone" name="Total Red-Zone (20-50%)" stroke="#7C3AED" strokeWidth={2} strokeDasharray="4 4" dot={{ r: 2 }} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
                 </div>
 
-                {/* MONTHLY CHART 2: Category-wise Stock: Baseline vs. Current Month */}
+                {/* CHART 3: Histogram / Waterfall Column – Monthly Evacuation Velocity */}
                 <div className="chart-card">
-                  <h4>Category-wise Stock: Baseline vs. Current Month</h4>
-                  <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={charts.cat_baseline_vs_current || []} margin={{ top: 6, right: 8, left: -20, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid-stroke)" />
-                        <XAxis dataKey="category" tick={{ fill: 'var(--text-main)', fontSize: 8 }} interval={0} />
-                        <YAxis tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
-                        <Tooltip formatter={(val, name) => [`₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr`, name]} />
-                        {charts.cat_baseline_vs_current && charts.cat_baseline_vs_current.length > 0 && (
-                          <>
-                            {Object.keys(charts.cat_baseline_vs_current[0] || {})
-                              .filter(k => k.includes('(Baseline)'))
-                              .map(k => (
-                                <Bar key={k} dataKey={k} fill="#3B82F6" />
-                              ))}
-                            {Object.keys(charts.cat_baseline_vs_current[0] || {})
-                              .filter(k => k.includes('(Current)'))
-                              .map(k => (
-                                <Bar key={k} dataKey={k} fill="#7C3AED" />
-                              ))}
-                          </>
-                        )}
-                      </BarChart>
-                    </ResponsiveContainer>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                    <h4>Monthly Evacuation Velocity</h4>
+                    <div style={{ display: 'flex', gap: 6, fontSize: 8.5, fontWeight: 700 }}>
+                      <span style={{ color: '#10B981' }}>▼ Negative = Cleared</span>
+                      <span style={{ color: '#EF4444' }}>▲ Positive = Accumulated</span>
+                    </div>
                   </div>
-                </div>
-
-                {/* MONTHLY CHART 3: Monthly Liquidation Velocity */}
-                <div className="chart-card">
-                  <h4>Monthly Liquidation Velocity (Stock Cleared MoM)</h4>
                   <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={charts.liquidation_velocity || []} margin={{ top: 6, right: 8, left: -20, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid-stroke)" />
-                        <XAxis dataKey="period" tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
+                        <XAxis dataKey="month" tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
                         <YAxis tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
-                        <Tooltip formatter={(val, name) => [`₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr`, name]} />
-                        <Bar dataKey="cleared_cr" name="Cleared Stock (Cr)" fill="#10B981" />
-                        <Bar dataKey="accumulated_cr" name="Accumulated Stock (Cr)" fill="#DC2626" />
+                        <ReferenceLine y={0} stroke="var(--tbl-border)" />
+                        <Tooltip 
+                          formatter={(val, name, props) => {
+                            const v = Number(val || 0);
+                            const status = v <= 0 ? 'Stock Cleared (Good 🟢)' : 'Stock Piled Up (Action Needed 🔴)';
+                            return [`${v > 0 ? '+' : ''}₹${v.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr (${status})`, "Net Stock Cleared"];
+                          }}
+                        />
+                        <Bar dataKey="velocity_cr" name="Net Stock Cleared (Cr)">
+                          {(charts.liquidation_velocity || []).map((entry, index) => (
+                            <Cell key={`cell-vel-${index}`} fill={entry.velocity_cr <= 0 ? '#10B981' : '#EF4444'} />
+                          ))}
+                        </Bar>
                       </BarChart>
                     </ResponsiveContainer>
                   </div>

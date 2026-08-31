@@ -80,43 +80,43 @@
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* --- DYNAMIC THEME (Sunset Ember, Crimson & Deep Slate Gradient from Image Reference) --- */
+/* --- DYNAMIC THEME (Light Theme with Emerald, Sage, Linen & Coral from Reference Palettes) --- */
 [data-theme="dynamic"] {
-  --bg-color: #0D141F;
-  --header-bg: rgba(13, 20, 31, 0.98);
-  --sidebar-bg-start: #141A29;
-  --sidebar-bg-mid: #1D233A;
-  --sidebar-bg-end: #282545;
-  --text-main: #FFF1C2;
-  --text-body: #FEE9D6;
-  --tbl-border: rgba(226, 66, 74, 0.35);
-  --tbl-bg: #161D2E;
-  --tbl-hdr-bg: linear-gradient(135deg, #B41B2B 0%, #E2424A 50%, #D3785D 100%);
+  --bg-color: #F4F7F5;
+  --header-bg: rgba(244, 247, 245, 0.98);
+  --sidebar-bg-start: #FAFBF9;
+  --sidebar-bg-mid: #F0F5F2;
+  --sidebar-bg-end: #E5EFEA;
+  --text-main: #114B5F;
+  --text-body: #1E343D;
+  --tbl-border: #C8DDD6;
+  --tbl-bg: #FFFFFF;
+  --tbl-hdr-bg: linear-gradient(135deg, #1A946F 0%, #114B5F 100%);
   --tbl-hdr-text: #FFFFFF;
-  --tbl-hdr-border: #E2424A;
-  --tbl-bg-odd: #1D253B;
-  --card-bg: linear-gradient(135deg, #182033 0%, #222544 60%, #322548 100%);
-  --card-border: rgba(255, 165, 136, 0.35);
-  --input-bg: #131927;
-  --input-border: rgba(255, 165, 136, 0.35);
-  --input-text: #FFF1C2;
-  --tab-nav-bg: #131927;
-  --tab-nav-border: rgba(226, 66, 74, 0.3);
-  --tab-pill-color: #FFA588;
-  --tab-pill-hover: rgba(226, 66, 74, 0.2);
-  --tab-active-bg: linear-gradient(135deg, #E2424A, #FFA588);
-  --chart-card-bg: #161D2E;
-  --chart-grid-stroke: rgba(255, 241, 194, 0.08);
-  --metric-label-color: #FFA588;
-  --metric-val-color: #FFF1C2;
-  --metric-delta-color: #73F6A6;
-  --modal-bg: #161D2E;
-  --scrollbar-track: #0D141F;
-  --scrollbar-thumb: #E2424A;
-  --scrollbar-thumb-hover: #FFA588;
-  --accent-primary: #E2424A;
-  --accent-secondary: #FFA588;
-  --accent-warm: #73F6A6;
+  --tbl-hdr-border: #114B5F;
+  --tbl-bg-odd: #F7FAF8;
+  --card-bg: linear-gradient(135deg, #FFFFFF 0%, #F9FAF8 60%, #EEF6F2 100%);
+  --card-border: #C5DCD4;
+  --input-bg: #FFFFFF;
+  --input-border: #BBD7CE;
+  --input-text: #114B5F;
+  --tab-nav-bg: #E3EFEA;
+  --tab-nav-border: #C5DCD4;
+  --tab-pill-color: #114B5F;
+  --tab-pill-hover: #D2E7DF;
+  --tab-active-bg: linear-gradient(135deg, #1A946F 0%, #114B5F 100%);
+  --chart-card-bg: #FFFFFF;
+  --chart-grid-stroke: #E2EDE8;
+  --metric-label-color: #114B5F;
+  --metric-val-color: #1A946F;
+  --metric-delta-color: #D3785D;
+  --modal-bg: #FFFFFF;
+  --scrollbar-track: #EBF4F0;
+  --scrollbar-thumb: #88D398;
+  --scrollbar-thumb-hover: #1A946F;
+  --accent-primary: #1A946F;
+  --accent-secondary: #D3785D;
+  --accent-warm: #E0B362;
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 

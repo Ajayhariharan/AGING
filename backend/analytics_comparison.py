@@ -314,26 +314,7 @@ def calculate_comparison_data(
                 }
             }
 
-        # Chart 1: Red-Zone Shelf-Life Trajectory (20% to 50%)
-        red_zone_trajectory = []
-        for p_name, m_df in filtered_month_dfs.items():
-            b_col = get_col_exact(m_df, ['Bucket %', 'bucket %', 'BUCKET %'])
-            c_cr = get_col_exact(m_df, ['Cr', 'CR', 'cr', 'Value'])
-            if b_col and c_cr and not m_df.empty:
-                m_df['Clean_B'] = m_df[b_col].apply(map_to_target_bucket)
-                b20 = float(m_df[m_df['Clean_B'] == '20 TO 30'][c_cr].sum())
-                b30 = float(m_df[m_df['Clean_B'] == '30 TO 40'][c_cr].sum())
-                b40 = float(m_df[m_df['Clean_B'] == '40 TO 50'][c_cr].sum())
-                tot_rz = b20 + b30 + b40
-                red_zone_trajectory.append({
-                    "month": p_name,
-                    "Total Red-Zone": round(float(tot_rz), 1),
-                    "20 TO 30": round(float(b20), 1),
-                    "30 TO 40": round(float(b30), 1),
-                    "40 TO 50": round(float(b40), 1)
-                })
-
-        # Chart 2: Category Baseline vs Current Month
+        # Chart 1: Category Stock: Start vs. Current Month
         cat_baseline_vs_current = []
         p_first = active_periods[0] if active_periods else None
         p_last = active_periods[-1] if active_periods else None
@@ -354,35 +335,83 @@ def calculate_comparison_data(
             v_l = float(last_cat_map.get(cat, 0.0))
             cat_baseline_vs_current.append({
                 "category": cat,
-                f"{p_first} (Baseline)": round(float(v_f), 1),
+                "start_month": p_first,
+                "current_month": p_last,
+                "start_val": round(float(v_f), 1),
+                "current_val": round(float(v_l), 1),
+                f"{p_first} (Start)": round(float(v_f), 1),
                 f"{p_last} (Current)": round(float(v_l), 1),
-                "Net Change": round(float(v_l - v_f), 1),
+                "is_reduced": v_l <= v_f,
+                "net_change": round(float(v_l - v_f), 1),
                 "_sort_val": v_l + v_f
             })
         cat_baseline_vs_current.sort(key=lambda x: x['_sort_val'], reverse=True)
         for item in cat_baseline_vs_current:
             del item['_sort_val']
 
-        # Chart 3: Monthly Liquidation Velocity (MoM Clearance)
-        liquidation_velocity = []
-        month_totals = {}
+        # Chart 2: Critical Red-Zone Risk Trajectory (20% to 50%)
+        red_zone_trajectory = []
         for p_name, m_df in filtered_month_dfs.items():
+            b_col = get_col_exact(m_df, ['Bucket %', 'bucket %', 'BUCKET %'])
             c_cr = get_col_exact(m_df, ['Cr', 'CR', 'cr', 'Value'])
-            month_totals[p_name] = float(m_df[c_cr].sum()) if c_cr and not m_df.empty else 0.0
+            if b_col and c_cr and not m_df.empty:
+                m_df['Clean_B'] = m_df[b_col].apply(map_to_target_bucket)
+                b20 = float(m_df[m_df['Clean_B'] == '20 TO 30'][c_cr].sum())
+                b30 = float(m_df[m_df['Clean_B'] == '30 TO 40'][c_cr].sum())
+                b40 = float(m_df[m_df['Clean_B'] == '40 TO 50'][c_cr].sum())
+                tot_rz = b20 + b30 + b40
+                red_zone_trajectory.append({
+                    "month": p_name,
+                    "Total Red-Zone": round(float(tot_rz), 1),
+                    "20% to 30%": round(float(b20), 1),
+                    "30% to 40%": round(float(b30), 1),
+                    "40% to 50%": round(float(b40), 1),
+                    "20 TO 30": round(float(b20), 1),
+                    "30 TO 40": round(float(b30), 1),
+                    "40 TO 50": round(float(b40), 1)
+                })
 
-        for i in range(len(active_periods) - 1):
-            m1 = active_periods[i]
-            m2 = active_periods[i+1]
-            tot1 = month_totals.get(m1, 0.0)
-            tot2 = month_totals.get(m2, 0.0)
-            diff = tot2 - tot1
+        # Chart 3: Monthly Evacuation Velocity (Net Stock Cleared per Month)
+        liquidation_velocity = []
+        for p_name in active_periods:
+            m_df = filtered_month_dfs.get(p_name, pd.DataFrame())
+            c_cr = get_col_exact(m_df, ['Cr', 'CR', 'cr', 'Value'])
+            w_col = get_col_exact(m_df, ['Week', 'week', 'WEEK', 'Wk'])
+            cleared_val = 0.0
+            if not m_df.empty and c_cr:
+                if w_col:
+                    unique_w = [str(w).strip() for w in m_df[w_col].dropna().unique()]
+                    sorted_w = sort_weeks_list(unique_w)
+                    if len(sorted_w) >= 2:
+                        w_first = sorted_w[0]
+                        w_last = sorted_w[-1]
+                        val_w1 = float(m_df[m_df[w_col].astype(str).str.strip() == w_first][c_cr].sum())
+                        val_w4 = float(m_df[m_df[w_col].astype(str).str.strip() == w_last][c_cr].sum())
+                        cleared_val = val_w4 - val_w1  # Negative if cleared, Positive if piled up
+                    else:
+                        cleared_val = 0.0
+            
             liquidation_velocity.append({
-                "period": f"{m1} → {m2}",
-                "net_change_cr": round(float(diff), 1),
-                "cleared_cr": round(float(-diff), 1) if diff < 0 else 0.0,
-                "accumulated_cr": round(float(diff), 1) if diff > 0 else 0.0,
-                "is_clearing": diff < 0
+                "month": p_name,
+                "velocity_cr": round(float(cleared_val), 1),
+                "is_clearing": cleared_val <= 0
             })
+
+        # Fallback to MoM step difference if individual files don't have internal weekly splits
+        if all(item["velocity_cr"] == 0.0 for item in liquidation_velocity) and len(active_periods) >= 2:
+            month_totals = {p: float(filtered_month_dfs[p][get_col_exact(filtered_month_dfs[p], ['Cr', 'CR', 'cr', 'Value'])].sum()) if (get_col_exact(filtered_month_dfs[p], ['Cr', 'CR', 'cr', 'Value']) and not filtered_month_dfs[p].empty) else 0.0 for p in active_periods}
+            liquidation_velocity = []
+            for i, p_name in enumerate(active_periods):
+                if i == 0:
+                    diff = 0.0
+                else:
+                    prev_p = active_periods[i-1]
+                    diff = month_totals.get(p_name, 0.0) - month_totals.get(prev_p, 0.0)
+                liquidation_velocity.append({
+                    "month": p_name,
+                    "velocity_cr": round(float(diff), 1),
+                    "is_clearing": diff <= 0
+                })
 
         # Chart backward compatibility
         cat_evolution = []
