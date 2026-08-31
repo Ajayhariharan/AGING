@@ -822,21 +822,22 @@ export default function ComparisonTab({ theme: propTheme }) {
                   </div>
                 </div>
 
-                {/* CHART 3: Grouped Bar Chart – Top Brands: Near-Expiry Exposure (Current Month) */}
+                {/* CHART 3: Dual-Axis Grouped Bar Chart – Top Brands: Near-Expiry Exposure (Current Month) */}
                 <div className="chart-card">
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
                     <h4>Top Brands: Near-Expiry Exposure</h4>
                     <div style={{ display: 'flex', gap: 6, fontSize: 8.5, fontWeight: 700 }}>
-                      <span style={{ color: isDynamic ? '#114B5F' : '#3B82F6' }}>● Total Stock</span>
-                      <span style={{ color: isDynamic ? '#E2424A' : '#EF4444' }}>● Danger (20-50%)</span>
+                      <span style={{ color: isDynamic ? '#114B5F' : '#3B82F6' }}>● Total (L)</span>
+                      <span style={{ color: isDynamic ? '#E2424A' : '#EF4444' }}>● Danger (R)</span>
                     </div>
                   </div>
                   <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={charts.top_brands_near_expiry || []} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                      <BarChart data={charts.top_brands_near_expiry || []} margin={{ top: 4, right: -10, left: -22, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid-stroke)" />
                         <XAxis dataKey="brand" tick={{ fill: 'var(--text-main)', fontSize: 8 }} interval={0} />
-                        <YAxis tick={{ fill: 'var(--text-main)', fontSize: 9 }} />
+                        <YAxis yAxisId="left" tick={{ fill: isDynamic ? '#114B5F' : '#3B82F6', fontSize: 8.5 }} />
+                        <YAxis yAxisId="right" orientation="right" tick={{ fill: isDynamic ? '#E2424A' : '#EF4444', fontSize: 8.5 }} />
                         <Tooltip
                           formatter={(val, name) => [`₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Cr`, name]}
                           labelFormatter={(label, payload) => {
@@ -847,8 +848,8 @@ export default function ComparisonTab({ theme: propTheme }) {
                             return label;
                           }}
                         />
-                        <Bar dataKey="Total Stock" name="Total Stock (Cr)" fill={isDynamic ? '#114B5F' : '#3B82F6'} />
-                        <Bar dataKey="Near-Expiry (20-50%)" name="Near-Expiry Risk (Cr)" fill={isDynamic ? '#E2424A' : '#EF4444'} />
+                        <Bar yAxisId="left" dataKey="Total Stock" name="Total Stock (Cr - Left Axis)" fill={isDynamic ? '#114B5F' : '#3B82F6'} minPointSize={3} />
+                        <Bar yAxisId="right" dataKey="Near-Expiry (20-50%)" name="Near-Expiry Risk (Cr - Right Axis)" fill={isDynamic ? '#E2424A' : '#EF4444'} minPointSize={6} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
