@@ -359,10 +359,10 @@ export default function ComparisonTab({ theme: propTheme }) {
                     {skuData.columns.map(c => {
                       const isLeft = c === 'Brand' || c === 'Link Description';
                       const val = r[c];
-                      const isDangerBucket = c === '<30%' || c === '30-40%' || c === '40-50%';
+                      const isDangerBucket = c === '20-30%' || c === '<30%' || c === '20 TO 30' || c === '30-40%' || c === '40-50%';
                       const isMedBucket = c === '50-60%' || c === '60-70%';
                       const isHighLifeBucket = c === '70-75%' || c === '75-80%';
-                      const isTotalCol = c === 'Total';
+                      const isTotalCol = c === 'Total' || c === 'TOTAL';
 
                       let cellStyle = {
                         textAlign: isLeft ? 'left' : 'right',

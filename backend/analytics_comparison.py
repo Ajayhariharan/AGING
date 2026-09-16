@@ -16,13 +16,13 @@ from database import get_stock_df, CACHE
 # User-customized comparison bucket order (from 20 TO 30 up to 60 TO 70)
 COMPARISON_BUCKETS_ORDER = ['20 TO 30', '30 TO 40', '40 TO 50', '50 TO 60', '60 TO 70']
 
-SKU_BUCKET_COLS = ['<30%', '30-40%', '40-50%', '50-60%', '60-70%']
+SKU_BUCKET_COLS = ['20-30%', '30-40%', '40-50%', '50-60%', '60-70%']
 
 def map_sku_matrix_bucket(b):
     if pd.isna(b): return None
     b_str = str(b).strip().upper()
-    if '20 TO 30' in b_str or '<30' in b_str or '20-30' in b_str or '20TO30' in b_str or '< 30' in b_str:
-        return '<30%'
+    if '20 TO 30' in b_str or '<30' in b_str or '20-30' in b_str or '20TO30' in b_str or '< 30' in b_str or '<=30' in b_str:
+        return '20-30%'
     if '30 TO 40' in b_str or '30-40' in b_str or '30TO40' in b_str:
         return '30-40%'
     if '40 TO 50' in b_str or '40-50' in b_str or '40TO50' in b_str:
