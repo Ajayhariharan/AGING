@@ -13,10 +13,10 @@ from parser import (
 )
 from database import get_stock_df, CACHE
 
-# User-customized comparison bucket order (only up to 70 TO 75)
-COMPARISON_BUCKETS_ORDER = ['20 TO 30', '30 TO 40', '40 TO 50', '50 TO 60', '60 TO 70', '70 TO 75']
+# User-customized comparison bucket order (from 20 TO 30 up to 60 TO 70)
+COMPARISON_BUCKETS_ORDER = ['20 TO 30', '30 TO 40', '40 TO 50', '50 TO 60', '60 TO 70']
 
-SKU_BUCKET_COLS = ['<30%', '30-40%', '40-50%', '50-60%', '60-70%', '70-75%', '75-80%']
+SKU_BUCKET_COLS = ['<30%', '30-40%', '40-50%', '50-60%', '60-70%']
 
 def map_sku_matrix_bucket(b):
     if pd.isna(b): return None
@@ -31,10 +31,6 @@ def map_sku_matrix_bucket(b):
         return '50-60%'
     if '60 TO 70' in b_str or '60-70' in b_str or '60TO70' in b_str:
         return '60-70%'
-    if '70 TO 75' in b_str or '70-75' in b_str or '70TO75' in b_str:
-        return '70-75%'
-    if '75 TO 80' in b_str or '75-80' in b_str or '75TO80' in b_str or '80 TO 85' in b_str or '80-85' in b_str or '>75' in b_str or '> 75' in b_str or '75-80%' in b_str:
-        return '75-80%'
     return None
 
 def build_sku_shelf_life_matrix(df: pd.DataFrame) -> Dict[str, Any]:
@@ -581,8 +577,7 @@ def calculate_comparison_data(
                 '30 TO 40': '30 TO 40 (High Risk)',
                 '40 TO 50': '40 TO 50 (Risky)',
                 '50 TO 60': '50 TO 60',
-                '60 TO 70': '60 TO 70',
-                '70 TO 75': '70 TO 75'
+                '60 TO 70': '60 TO 70'
             }
             
             # Total Red-Zone (20-50) Row

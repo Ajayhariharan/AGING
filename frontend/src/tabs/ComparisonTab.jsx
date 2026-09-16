@@ -133,7 +133,7 @@ export default function ComparisonTab({ theme: propTheme }) {
   const catChartData = Object.values(catChartMap);
 
   // 2. Chart 2: Period on X-axis, Stacked Bars by Shelf-Life Risk Bucket
-  const allBucketsOrder = ['20 TO 30', '30 TO 40', '40 TO 50', '50 TO 60', '60 TO 70', '70 TO 75'];
+  const allBucketsOrder = ['20 TO 30', '30 TO 40', '40 TO 50', '50 TO 60', '60 TO 70'];
   const bucketChartMap = {};
   charts?.bucket_migration?.forEach(item => {
     if (!bucketChartMap[item.week]) bucketChartMap[item.week] = { period: item.week };
@@ -157,11 +157,11 @@ export default function ComparisonTab({ theme: propTheme }) {
     ? ['#1A946F', '#E2424A', '#E0B362', '#114B5F', '#B45C6C', '#D3785D', '#61305D', '#88D398', '#73F6A6', '#A75377']
     : ['#7C3AED', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#14B8A6'];
 
-  // Shelf-Life 6-bucket gradient (20-30% to 70-75%) from image cards:
-  // Crimson (#E2424A), Terracotta (#D3785D), Ochre Gold (#E0B362), Mint Sage (#88D398), Emerald (#1A946F), Forest Teal (#114B5F)
+  // Shelf-Life 5-bucket gradient (20-30% to 60-70%) from image cards:
+  // Crimson (#E2424A), Terracotta (#D3785D), Ochre Gold (#E0B362), Mint Sage (#88D398), Emerald (#1A946F)
   const bucketColors = isDynamic
-    ? ['#E2424A', '#D3785D', '#E0B362', '#88D398', '#1A946F', '#114B5F']
-    : ['#DC2626', '#EA580C', '#D97706', '#10B981', '#2563EB', '#7C3AED'];
+    ? ['#E2424A', '#D3785D', '#E0B362', '#88D398', '#1A946F']
+    : ['#DC2626', '#EA580C', '#D97706', '#10B981', '#2563EB'];
 
   // Render dynamic comparison matrix table with badge and color formatting
   const renderMatrixTable = (title, matrixData, defaultLeftCol = 'CATEGORY') => {
