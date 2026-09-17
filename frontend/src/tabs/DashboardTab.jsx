@@ -153,135 +153,133 @@ export default function DashboardTab() {
         </div>
       </div>
 
-      {/* Middle 2-Column Section (Hugs table content tightly - ZERO empty space voids) */}
+      {/* Middle 2x2 Grid Section - Perfectly aligns Row 1 (Category & Brands) and Row 2 (Branch x Category & Branch) */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, flexShrink: 0 }}>
-        {/* Left Column: Category & Branch x Category */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div>
-            <h3 className="section-header">AT-RISK BY CATEGORY (CR)</h3>
-            <div className="table-wrapper" style={{ flex: 'none', height: 'auto', maxHeight: 'none', background: 'var(--tbl-bg)' }}>
-              <table className="styled-table">
-                <thead>
-                  <tr>
-                    {category_table.columns.map(c => (
-                      <th key={c} style={{ textAlign: c === 'Category' ? 'left' : 'right' }}>
-                        {c}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {category_table.rows.map((r, i) => {
-                    const isTotal = String(r['Category'] || '').toLowerCase() === 'total';
-                    return (
-                      <tr key={i} className={isTotal ? 'total-row' : ''}>
-                        {category_table.columns.map(c => (
-                          <td key={c} style={{ textAlign: c === 'Category' ? 'left' : 'right' }}>
-                            {formatVal(r[c])}
-                          </td>
-                        ))}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="section-header">AT-RISK BY BRANCH x CATEGORY (CR)</h3>
-            <div className="table-wrapper" style={{ flex: 'none', height: 'auto', maxHeight: 'none', background: 'var(--tbl-bg)' }}>
-              <table className="styled-table">
-                <thead>
-                  <tr>
-                    {branch_category_pivot.columns.map(c => (
-                      <th key={c} style={{ textAlign: c === 'Branch' ? 'left' : 'right' }}>
-                        {c}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {branch_category_pivot.rows.map((r, i) => {
-                    const isTotal = String(r['Branch'] || '').toLowerCase() === 'total';
-                    return (
-                      <tr key={i} className={isTotal ? 'total-row' : ''}>
-                        {branch_category_pivot.columns.map(c => (
-                          <td key={c} style={{ textAlign: c === 'Branch' ? 'left' : 'right' }}>
-                            {formatVal(r[c])}
-                          </td>
-                        ))}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+        {/* Row 1 Left: AT-RISK BY CATEGORY */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <h3 className="section-header">AT-RISK BY CATEGORY (CR)</h3>
+          <div className="table-wrapper" style={{ flex: 'none', height: 190, maxHeight: 190, overflow: 'hidden', background: 'var(--tbl-bg)' }}>
+            <table className="styled-table">
+              <thead>
+                <tr>
+                  {category_table.columns.map(c => (
+                    <th key={c} style={{ textAlign: c === 'Category' ? 'left' : 'right' }}>
+                      {c}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {category_table.rows.map((r, i) => {
+                  const isTotal = String(r['Category'] || '').toLowerCase() === 'total';
+                  return (
+                    <tr key={i} className={isTotal ? 'total-row' : ''}>
+                      {category_table.columns.map(c => (
+                        <td key={c} style={{ textAlign: c === 'Category' ? 'left' : 'right' }}>
+                          {formatVal(r[c])}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        {/* Right Column: Top 10 Brands & Branch */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div>
-            <h3 className="section-header">TOP 10 BRANDS (CR)</h3>
-            <div className="table-wrapper" style={{ flex: 'none', height: 'auto', maxHeight: 'none', background: 'var(--tbl-bg)' }}>
-              <table className="styled-table">
-                <thead>
-                  <tr>
-                    {brand_table.columns.map(c => (
-                      <th key={c} style={{ textAlign: (c === '#' || c === 'Brand') ? 'left' : 'right' }}>
-                        {c}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {brand_table.rows.map((r, i) => {
-                    const isTotal = String(r['Brand'] || '').toLowerCase() === 'total';
-                    return (
-                      <tr key={i} className={isTotal ? 'total-row' : ''}>
-                        {brand_table.columns.map(c => (
-                          <td key={c} style={{ textAlign: (c === '#' || c === 'Brand') ? 'left' : 'right' }}>
-                            {formatVal(r[c])}
-                          </td>
-                        ))}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+        {/* Row 1 Right: TOP 10 BRANDS (Same height as Category table with internal scroll) */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <h3 className="section-header">TOP 10 BRANDS (CR)</h3>
+          <div className="table-wrapper" style={{ flex: 'none', height: 190, maxHeight: 190, overflowY: 'auto', background: 'var(--tbl-bg)' }}>
+            <table className="styled-table">
+              <thead>
+                <tr>
+                  {brand_table.columns.map(c => (
+                    <th key={c} style={{ textAlign: (c === '#' || c === 'Brand') ? 'left' : 'right' }}>
+                      {c}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {brand_table.rows.map((r, i) => {
+                  const isTotal = String(r['Brand'] || '').toLowerCase() === 'total';
+                  return (
+                    <tr key={i} className={isTotal ? 'total-row' : ''}>
+                      {brand_table.columns.map(c => (
+                        <td key={c} style={{ textAlign: (c === '#' || c === 'Brand') ? 'left' : 'right' }}>
+                          {formatVal(r[c])}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
+        </div>
 
-          <div>
-            <h3 className="section-header">AT-RISK BY BRANCH (CR)</h3>
-            <div className="table-wrapper" style={{ flex: 'none', height: 'auto', maxHeight: 'none', background: 'var(--tbl-bg)' }}>
-              <table className="styled-table">
-                <thead>
-                  <tr>
-                    {branch_table.columns.map(c => (
-                      <th key={c} style={{ textAlign: c === 'Branch' ? 'left' : 'right' }}>
-                        {c}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {branch_table.rows.map((r, i) => {
-                    const isTotal = String(r['Branch'] || '').toLowerCase() === 'total';
-                    return (
-                      <tr key={i} className={isTotal ? 'total-row' : ''}>
-                        {branch_table.columns.map(c => (
-                          <td key={c} style={{ textAlign: c === 'Branch' ? 'left' : 'right' }}>
-                            {formatVal(r[c])}
-                          </td>
-                        ))}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+        {/* Row 2 Left: AT-RISK BY BRANCH x CATEGORY */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <h3 className="section-header">AT-RISK BY BRANCH x CATEGORY (CR)</h3>
+          <div className="table-wrapper" style={{ flex: 'none', height: 'auto', maxHeight: 'none', background: 'var(--tbl-bg)' }}>
+            <table className="styled-table">
+              <thead>
+                <tr>
+                  {branch_category_pivot.columns.map(c => (
+                    <th key={c} style={{ textAlign: c === 'Branch' ? 'left' : 'right' }}>
+                      {c}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {branch_category_pivot.rows.map((r, i) => {
+                  const isTotal = String(r['Branch'] || '').toLowerCase() === 'total';
+                  return (
+                    <tr key={i} className={isTotal ? 'total-row' : ''}>
+                      {branch_category_pivot.columns.map(c => (
+                        <td key={c} style={{ textAlign: c === 'Branch' ? 'left' : 'right' }}>
+                          {formatVal(r[c])}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Row 2 Right: AT-RISK BY BRANCH */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <h3 className="section-header">AT-RISK BY BRANCH (CR)</h3>
+          <div className="table-wrapper" style={{ flex: 'none', height: 'auto', maxHeight: 'none', background: 'var(--tbl-bg)' }}>
+            <table className="styled-table">
+              <thead>
+                <tr>
+                  {branch_table.columns.map(c => (
+                    <th key={c} style={{ textAlign: c === 'Branch' ? 'left' : 'right' }}>
+                      {c}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {branch_table.rows.map((r, i) => {
+                  const isTotal = String(r['Branch'] || '').toLowerCase() === 'total';
+                  return (
+                    <tr key={i} className={isTotal ? 'total-row' : ''}>
+                      {branch_table.columns.map(c => (
+                        <td key={c} style={{ textAlign: c === 'Branch' ? 'left' : 'right' }}>
+                          {formatVal(r[c])}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
