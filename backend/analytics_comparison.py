@@ -580,12 +580,6 @@ def calculate_comparison_data(
                 '60 TO 70': '60 TO 70'
             }
             
-            # Total Red-Zone (20-50) Row
-            rz_indices = [b for b in ['20 TO 30', '30 TO 40', '40 TO 50'] if b in bucket_matrix_df.index]
-            red_zone_row = bucket_matrix_df.loc[rz_indices].sum().to_frame().T if rz_indices else pd.DataFrame()
-            if not red_zone_row.empty:
-                red_zone_row.index = ['Total Red-Zone (20-50)']
-
             total_b = bucket_matrix_df[avail_p].sum().to_frame().T
             total_b.index = ['Total']
             if len(avail_p) >= 2 and not total_b.empty:
@@ -597,7 +591,7 @@ def calculate_comparison_data(
 
             bucket_matrix_df.index = [BUCKET_LABELS.get(b, b) for b in bucket_matrix_df.index]
             
-            final_b_m = pd.concat([bucket_matrix_df, red_zone_row, total_b]).reset_index().rename(columns={'index': 'SHELF-LIFE BUCKET'})
+            final_b_m = pd.concat([bucket_matrix_df, total_b]).reset_index().rename(columns={'index': 'SHELF-LIFE BUCKET'})
             final_b_m.columns.name = None
             rows_bm = []
             for _, row in final_b_m.iterrows():

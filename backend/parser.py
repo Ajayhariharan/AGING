@@ -90,8 +90,8 @@ def map_to_target_bucket(val: Any) -> Optional[str]:
         return '80 to 85'
     return None
 
-TARGET_BUCKETS = ['20 TO 30', '30 TO 40', '40 TO 50', '50 TO 60', '60 TO 70', '70 TO 75', '75 to 80']
-ALL_BUCKETS_ORDER = ['20 TO 30', '30 TO 40', '40 TO 50', '50 TO 60', '60 TO 70', '70 TO 75', '75 to 80', '80 to 85']
+TARGET_BUCKETS = ['20 TO 30', '30 TO 40', '40 TO 50', '50 TO 60', '60 TO 70']
+ALL_BUCKETS_ORDER = ['20 TO 30', '30 TO 40', '40 TO 50', '50 TO 60', '60 TO 70']
 STANDARD_BRANCHES = ['01.North', '02.East', '03.West', '04.South']
 ALLOWED_BRANCHES = ['01.North', '02.East', '03.West', '04.South', '1.North', '2.East', '3.West', '4.South', 'North', 'East', 'West', 'South']
 

@@ -985,7 +985,7 @@ if uploaded_file is not None:
                             return '75 to 80'
                         return None
 
-                    target_buckets = ['20 TO 30', '30 TO 40', '40 TO 50', '50 TO 60', '60 TO 70', '70 TO 75', '75 to 80']
+                    target_buckets = ['20 TO 30', '30 TO 40', '40 TO 50', '50 TO 60', '60 TO 70']
                     if d_bucket_col:
                         dashboard_df['Target_Bucket'] = dashboard_df[d_bucket_col].apply(map_to_target_bucket)
                     else:
