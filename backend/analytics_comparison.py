@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 from typing import Any, Dict, List, Optional, Union
 import pandas as pd
 import numpy as np
@@ -133,21 +134,63 @@ def calculate_comparison_data(
             'september': 9, 'october': 10, 'november': 11, 'december': 12
         }
 
+        def extract_month_w4_df(sheets: Dict[str, pd.DataFrame], stock_sheet_name: str) -> Optional[pd.DataFrame]:
+            """
+            Extracts Week 4 (W4) data for monthly comparison from a month's workbook.
+            1. If the workbook has a dedicated W4 sheet (e.g. 'W4', 'Week 4', 'Week4', 'Wk4', 'Wk 4'), use that.
+            2. Otherwise, use the stock sheet and filter by the 'Week' column for W4 / latest week.
+            """
+            if not sheets:
+                return None
+            
+            # 1. Check for dedicated W4 sheet
+            for s_name, s_df in sheets.items():
+                s_clean = s_name.strip().lower()
+                if s_clean in ['w4', 'week 4', 'week4', 'wk 4', 'wk4', '4', 'week_4', 'w_4']:
+                    if s_df is not None and not s_df.empty:
+                        return s_df.copy()
+            
+            # 2. Get main stock / data sheet
+            df_main = sheets.get(stock_sheet_name)
+            if df_main is None:
+                for s_key, s_val in sheets.items():
+                    if 'master' not in s_key.lower():
+                        df_main = s_val
+                        break
+                if df_main is None and sheets:
+                    df_main = list(sheets.values())[0]
+                    
+            if df_main is None or df_main.empty:
+                return None
+                
+            df_work = df_main.copy()
+            c_week = get_col_exact(df_work, ['Week', 'week', 'WEEK', 'Wk', 'wk', 'Wk No', 'Week No'])
+            if c_week:
+                unique_weeks = [str(w).strip() for w in df_work[c_week].dropna().unique() if str(w).strip() != '' and str(w).lower() not in ['nan', 'none', 'null', 'total']]
+                if unique_weeks:
+                    # Check for explicit W4 match
+                    w4_candidates = [w for w in unique_weeks if re.search(r'\b(w4|week\s*4|wk\s*4|4)\b', w, re.I) or w.lower() in ['w4', 'week 4', 'week4', 'wk4', '4', 'w_4']]
+                    if w4_candidates:
+                        target_w = w4_candidates[0]
+                    else:
+                        # If no explicit "W4" label, sort weeks chronologically and pick the last week
+                        sorted_w = sort_weeks_list(unique_weeks)
+                        target_w = sorted_w[-1] if sorted_w else unique_weeks[-1]
+                    
+                    df_work = df_work[df_work[c_week].astype(str).str.strip() == target_w]
+                    
+            return df_work
+
         month_dfs = {}
         for f_id, wb_data in CACHE.get("all_workbooks", {}).items():
             f_name = wb_data["filename"]
             sheets = wb_data["sheets"]
             s_name = wb_data["stock_sheet_name"]
-            df_sub = sheets.get(s_name)
-            if df_sub is None:
-                for s_key, s_val in sheets.items():
-                    if 'master' not in s_key.lower():
-                        df_sub = s_val
-                        break
-                if df_sub is None and sheets:
-                    df_sub = list(sheets.values())[0]
             
-            if df_sub is not None:
+            # Always extract Month W4 data for monthly comparison
+            df_sub = extract_month_w4_df(sheets, s_name)
+            
+            if df_sub is not None and not df_sub.empty:
                 disp_name = get_month_display_name(f_name, f_id, df_sub)
                 month_dfs[disp_name] = df_sub
 
