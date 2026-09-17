@@ -1051,6 +1051,7 @@ if uploaded_file is not None:
                                 fill_value=0
                             )
                             branch_cat_pivot['Total'] = branch_cat_pivot.sum(axis=1)
+                            branch_cat_pivot = branch_cat_pivot.sort_values(by='Total', ascending=False)
                             total_row = branch_cat_pivot.sum().to_frame().T
                             total_row.index = ['Total']
                             branch_cat_pivot = pd.concat([branch_cat_pivot, total_row])
@@ -1092,7 +1093,6 @@ if uploaded_file is not None:
                                 
                                 final_brand_pivot = pd.concat([brand_pivot, total_row]).reset_index().rename(columns={'index': 'Brand', d_brand_col: 'Brand'})
                                 final_brand_pivot.columns.name = None
-                                final_brand_pivot.insert(0, '#', [str(i) if i < len(final_brand_pivot) else '' for i in range(1, len(final_brand_pivot)+1)])
                                 render_styled_table(final_brand_pivot)
                             else:
                                 st.info("No data found for the selected risk buckets in Brands.")

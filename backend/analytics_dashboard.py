@@ -111,6 +111,7 @@ def calculate_dashboard_data(weeks: List[str] = [], branches: List[str] = [], ch
         if not filtered_branch_df.empty:
             branch_cat_pivot = filtered_branch_df.pivot_table(index=d_branch_col, columns=d_cat_col, values=d_cr_col, aggfunc='sum', fill_value=0)
             branch_cat_pivot['Total'] = branch_cat_pivot.sum(axis=1)
+            branch_cat_pivot = branch_cat_pivot.sort_values(by='Total', ascending=False)
             total_row = branch_cat_pivot.sum().to_frame().T
             total_row.index = ['Total']
             final_bc = pd.concat([branch_cat_pivot, total_row]).reset_index().rename(columns={'index': 'Branch', d_branch_col: 'Branch'})
@@ -136,7 +137,6 @@ def calculate_dashboard_data(weeks: List[str] = [], branches: List[str] = [], ch
             total_row['Share'] = f"{round((top10_sum / all_brand_total * 100), 1)}%" if all_brand_total > 0 else "100%"
             brand_pivot = brand_pivot.drop(columns=['Row_Total'])
             final_brand_pivot = pd.concat([brand_pivot, total_row]).reset_index().rename(columns={'index': 'Brand', d_brand_col: 'Brand'})
-            final_brand_pivot.insert(0, '#', [str(i) if i < len(final_brand_pivot) else '' for i in range(1, len(final_brand_pivot)+1)])
             brand_table = df_to_json_table(final_brand_pivot)
 
     # 5. Table 3: AT-RISK BY BRANCH (CR)
